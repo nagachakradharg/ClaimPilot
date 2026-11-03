@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1090,
+  "model": "ollama:gpt-oss:20b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-2",
+        "quote": "\"If breakage of glass is caused by a collision, you may elect to have it treated as loss caused by collision. Repair of a windshield chip without replacement is paid with no deductible.\""
+      },
+      {
+        "clause_id": "COMP-1",
+        "quote": "\"Loss caused by the following is considered other than collision: ... breakage of glass.\""
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "The claim involves a windshield chip caused by a rock kicked up by a truck. Under [COMP-2], glass breakage caused by a collision can be elected to be treated as collision loss, and the repair of a windshield chip is paid with no deductible. Although [COMP-1] classifies breakage of glass as other than collision, [COMP-2] explicitly allows election to treat it as collision when the breakage is caused by a collision. No exclusions apply to this type of damage."
+  },
+  "output_tokens": 730
+}

@@ -1,0 +1,22 @@
+# Local stack. Phase 0: Postgres + pgvector. API, mock core system, MCP server and
+# frontend services are added as they land (weeks 2-5).
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-claimpilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-claimpilot}
+      POSTGRES_DB: ${POSTGRES_DB:-claimpilot}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U claimpilot -d claimpilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

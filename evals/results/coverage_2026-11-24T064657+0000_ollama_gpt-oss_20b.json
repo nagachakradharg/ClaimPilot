@@ -1,0 +1,59 @@
+{
+  "suite": "coverage",
+  "timestamp": "2026-11-24T06:46:57+00:00",
+  "llm_mode": "record",
+  "model": "ollama:gpt-oss:20b",
+  "embedding": "fastembed:BAAI/bge-small-en-v1.5",
+  "summary": {
+    "n": 2,
+    "errors": 0,
+    "decision_accuracy": 1.0,
+    "escalation_recall": 1.0,
+    "false_auto_approvals": 0,
+    "citation_correctness": 1.0,
+    "must_cite_recall": 1.0,
+    "llm_calls": 2,
+    "latency_p50_ms": 257442.5,
+    "latency_p95_ms": 444452.5,
+    "avg_input_tokens": 1146,
+    "avg_output_tokens": 391,
+    "confusion": {
+      "covered->covered": 1,
+      "not_covered->not_covered": 1
+    }
+  },
+  "cases": [
+    {
+      "id": "cov-001",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-012",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "EXC-2"
+      ],
+      "flags": [],
+      "error": false
+    }
+  ]
+}

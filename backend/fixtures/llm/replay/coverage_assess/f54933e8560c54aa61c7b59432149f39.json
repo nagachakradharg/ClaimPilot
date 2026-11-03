@@ -1,0 +1,17 @@
+{
+  "input_tokens": 694,
+  "model": "ollama:gpt-oss:20b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "LIAB-2",
+        "quote": "\"This policy provides liability coverage only. It does not include Collision or Other Than Collision (comprehensive) coverage. We will not pay for loss to your covered auto from any cause, including collision, theft, fire, vandalism, weather, or glass breakage.\""
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "The policy is a liability-only policy and explicitly excludes coverage for theft of the insured vehicle."
+  },
+  "output_tokens": 280
+}

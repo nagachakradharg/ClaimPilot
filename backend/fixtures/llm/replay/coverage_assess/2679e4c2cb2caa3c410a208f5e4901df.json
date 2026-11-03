@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1103,
+  "model": "ollama:gpt-oss:20b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Other than collision (comprehensive) coverage (Part D \u2014 Coverage for damage to your auto) We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations. Loss caused by the following is considered other than collision: missiles or falling objects; fire; theft or larceny; explosion or earthquake; windstorm; hail, water or flood; malicious mischief or vandalism; riot or civil commotion; contact with a bird or animal; or breakage of glass."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "The incident is flash flooding, which is explicitly listed as a covered loss under comprehensive coverage in COMP-1. No exclusion clauses apply to water or flood damage, so the claim is covered under comprehensive coverage."
+  },
+  "output_tokens": 395
+}

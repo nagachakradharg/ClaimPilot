@@ -1,0 +1,51 @@
+[project]
+name = "claimpilot"
+version = "0.1.0"
+description = "ClaimPilot: multi-agent auto-insurance claims processing (backend)"
+
+authors = [
+    { name = "nagachakradharg", email = "nagachakradharg@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.20.1",
+    "fastapi>=0.165.0",
+    "fastembed>=0.9.1",
+    "langchain>=1.5.2",
+    "langchain-anthropic>=1.7.12",
+    "langchain-core>=1.8.4",
+    "langchain-ollama>=1.2.0",
+    "langchain-openai>=1.8.5",
+    "langfuse>=5.2.0",
+    "langgraph>=1.2.24",
+    "langgraph-checkpoint-postgres>=3.2.1",
+    "pgvector>=0.5.1",
+    "psycopg[binary]>=3.3.9",
+    "pydantic-settings>=2.16.3",
+    "sqlalchemy[asyncio]>=2.1.9",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.9,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
+    "ruff>=0.17.6",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

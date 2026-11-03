@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1192,
+  "model": "ollama:gpt-oss:20b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "EXC-2",
+        "quote": "\"We will not pay for loss to your covered auto while it is being used to carry persons or property for a fee, including while the driver is logged in to a transportation network or delivery platform. This exclusion does not apply to shared-expense car pools.\""
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "The incident involved the insured vehicle being used for a delivery app (a transportation network or delivery platform). Clause EXC-2 explicitly excludes coverage for loss incurred while the vehicle is used to carry persons or property for a fee, including when the driver is logged in to such a platform. Therefore, despite the claim being a collision loss, the exclusion applies and the claim is not covered."
+  },
+  "output_tokens": 477
+}

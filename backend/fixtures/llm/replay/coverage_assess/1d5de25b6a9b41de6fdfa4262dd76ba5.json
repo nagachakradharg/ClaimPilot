@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1118,
+  "model": "ollama:gpt-oss:20b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations. \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      },
+      {
+        "clause_id": "EXC-2",
+        "quote": "We will not pay for loss to your covered auto while it is being used to carry persons or property for a fee, including while the driver is logged in to a transportation network or delivery platform. This exclusion does not apply to shared-expense car pools."
+      }
+    ],
+    "coverage_part": "collision",
+    "decision": "covered",
+    "reasoning": "The loss is a collision event, so [COLL-1] provides coverage. The claimant was not using the vehicle for rideshare at the time of the incident (the app was turned off), so the commercial\u2011use exclusion [EXC-2] does not apply. No other exclusions apply."
+  },
+  "output_tokens": 757
+}
