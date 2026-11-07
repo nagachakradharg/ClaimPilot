@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1086,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations. Loss caused by the following is considered other than collision: missiles or falling objects; fire; theft or larceny; explosion or earthquake; windstorm; hail, water or flood; malicious mischief or vandalism; riot or civil commotion; contact with a bird or animal; or breakage of glass."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "The claimant describes a tornado flipping the car, which falls under the 'windstorm' category of 'other than collision' coverage provided in clause [COMP-1]. There are no applicable exclusions in the policy that would negate coverage for a weather-related event like a tornado."
+  },
+  "output_tokens": 204
+}

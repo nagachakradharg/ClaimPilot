@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1317,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision... Loss caused by the following is considered other than collision: ... theft or larceny;"
+      },
+      {
+        "clause_id": "COMP-3",
+        "quote": "For theft of your covered auto, you must report the theft to the police within 48 hours of discovering it. We will pay for loss only after 30 days have passed without recovery of the vehicle, unless the vehicle is recovered earlier in damaged condition."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states the car was stolen from the street. 2. Insuring clause: [COMP-1] covers 'theft or larceny' as a loss 'other than collision'. [COMP-3] specifically addresses 'Theft of the entire vehicle'. 3. Exclusions: None of the exclusion conditions (wear and tear, unlicensed driver, commercial use, racing, intentional damage, etc.) are met by the facts provided. The claim confirms the vehicle was stolen and a police report was filed, satisfying the reporting requirement in [COMP-3]."
+  },
+  "output_tokens": 292
+}

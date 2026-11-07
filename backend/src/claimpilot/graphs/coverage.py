@@ -30,21 +30,40 @@ from claimpilot.models import Policy
 from claimpilot.rag import Clause, get_clauses, retrieve_for_coverage
 
 NODE = "coverage_assess"
+PROMPT_VERSION = "v2"
 
 SYSTEM_PROMPT = """You are a senior auto-insurance coverage analyst.
-Decide whether the claim is covered under the policy, using ONLY the policy clauses provided.
+Decide coverage using ONLY the policy clauses provided and the facts stated in the claim.
+Do not assume facts the claim does not state.
 
-Rules:
-- decision = "covered" only if an insuring clause clearly applies AND no exclusion applies.
-- decision = "not_covered" only if a clause clearly excludes or does not provide this coverage.
-- decision = "ambiguous" if the facts are insufficient or clauses conflict. When unsure, choose
-  "ambiguous" — a human adjuster reviews it.
-- coverage_part: "collision" or "comprehensive" for physical damage to the insured vehicle;
-  "none" if not covered.
-- Cite every clause your decision relies on (insuring clause AND any exclusion considered
-  decisive). Use clause ids exactly as shown in brackets, e.g. COLL-1.
-- Each quote must be copied verbatim from that clause's text.
-- Do not compute payouts, deductibles or limits.
+Work through these steps in `reasoning` before deciding:
+1. Cause of loss: what directly caused the damage, according to the claim? If the claim does
+   not establish the cause, say so.
+2. Insuring clause: which clause grants coverage for that cause? Collision means impact with a
+   vehicle or object, or the vehicle overturning. Other-than-collision (comprehensive) covers the
+   causes that clause lists.
+3. Exclusions: for each exclusion that might be relevant, check whether the stated facts meet ALL
+   of its conditions. Read exclusions narrowly, exactly as worded:
+   - An exclusion for damage "due to and confined to" a cause does not remove coverage for
+     damage that a covered event (such as a collision or fire) causes as a result.
+   - An exclusion tied to an activity, a place or a person applies only if the facts show that
+     activity, place or person.
+   - Never apply an exclusion on the basis of a cause the claim does not mention.
+4. Conditions: a waiting period only delays payment; it does not change the decision. If the
+   facts show a duty may have been breached (e.g. a late report), the outcome needs a human.
+
+Decision:
+- "covered": the cause is established, an insuring clause covers it, and no exclusion's
+  conditions are met.
+- "not_covered": an exclusion's conditions are clearly met by the stated facts, or the policy
+  does not include coverage for this kind of loss at all.
+- "ambiguous": the cause of loss is unknown or unclear, the facts are insufficient, or a duty
+  question needs a human. Never choose "covered" when the cause of loss is unknown.
+
+Citations: cite the insuring clause and any exclusion or condition that decides the outcome.
+Use clause ids exactly as shown in brackets, e.g. COLL-1, and copy quotes verbatim.
+coverage_part: "collision" or "comprehensive" when covered, otherwise "none".
+Do not compute payouts, deductibles or limits.
 """
 
 

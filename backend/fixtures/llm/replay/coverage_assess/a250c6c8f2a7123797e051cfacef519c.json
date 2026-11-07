@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1368,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: ... windstorm; ..."
+      },
+      {
+        "clause_id": "COLL-1",
+        "quote": "\"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states a tornado flipped the car onto its side. This constitutes both a 'windstorm' and an 'upset' of the vehicle.\n2. Insuring clause: [COMP-1] covers 'windstorm' as other-than-collision. [COLL-1] covers the 'upset' of the covered auto as collision. Since the loss is caused by a windstorm (tornado), it is covered under the comprehensive portion of the policy.\n3. Exclusions: None of the listed exclusions (EXC-1 through EXC-7) are met by the facts provided. The claim does not mention mechanical breakdown, commercial use, racing, intentional acts, unlicensed drivers, personal property, or war/nuclear events. The exclusion for wear and tear (EXC-1) does not apply because the damage is not 'due to and confined to' wear and tear; it was caused by a tornado.\n4. Decision: The cause of loss (windstorm/tornado) is established and covered by the comprehensive clause."
+  },
+  "output_tokens": 355
+}

@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1356,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: missiles or falling objects; fire; theft or larceny; explosion or earthquake; windstorm; hail, water or flood; malicious mischief or vandalism; riot or civil commotion; contact with a bird or animal; or breakage of glass."
+      },
+      {
+        "clause_id": "EXC-1",
+        "quote": "We will not pay for loss due to and confined to wear and tear, freezing, mechanical or electrical breakdown or failure, or road damage to tires, unless the damage results from the total theft of your covered auto."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states an electrical short in the engine bay started a fire that burned the front of the car. \n2. Insuring clause: [COMP-1] covers loss caused by 'fire'. \n3. Exclusions: [EXC-1] excludes loss due to and confined to 'mechanical or electrical breakdown or failure'. However, the claim states the electrical short *started a fire* that spread and burned the car. The exclusion is for damage 'due to and confined to' the breakdown; here, the fire is the resulting covered peril. [EXC-2], [EXC-3], [EXC-4], [EXC-5], [EXC-6], and [EXC-7] are not applicable based on the facts provided."
+  },
+  "output_tokens": 353
+}

@@ -22,15 +22,15 @@ from claimpilot.context import run_context
 from claimpilot.db import get_sessionmaker
 from claimpilot.domain import ClaimFacts, CoverageDecision
 from claimpilot.evals.report import write_report
-from claimpilot.graphs.coverage import NODE, run_coverage
+from claimpilot.graphs.coverage import NODE, PROMPT_VERSION, run_coverage
 from claimpilot.llm import CallRecord, LLMClient
 
-DATASET = EVALS_DIR / "coverage.jsonl"
+DATASETS = {"dev": EVALS_DIR / "coverage.jsonl", "holdout": EVALS_DIR / "coverage_holdout.jsonl"}
 RESULTS_DIR = EVALS_DIR / "results"
 REVIEW = {CoverageDecision.NOT_COVERED.value, CoverageDecision.AMBIGUOUS.value}
 
 
-def load_cases(path: Path = DATASET) -> list[dict[str, Any]]:
+def load_cases(path: Path = DATASETS["dev"]) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
@@ -94,9 +94,11 @@ def summarize(scored: list[dict[str, Any]], calls: list[CallRecord]) -> dict[str
     }
 
 
-async def run(limit: int | None, concurrency: int, ids: list[str] | None) -> dict[str, Any]:
+async def run(
+    limit: int | None, concurrency: int, ids: list[str] | None, dataset: str = "dev"
+) -> dict[str, Any]:
     settings = get_settings()
-    cases = load_cases()
+    cases = load_cases(DATASETS[dataset])
     if ids:
         cases = [c for c in cases if c["id"] in ids]
     cases = cases[:limit] if limit else cases
@@ -133,7 +135,9 @@ async def run(limit: int | None, concurrency: int, ids: list[str] | None) -> dic
     scored = await asyncio.gather(*(one(c) for c in cases))
     summary = summarize(list(scored), calls)
     payload = {
-        "suite": "coverage",
+        "suite": f"coverage_{dataset}",
+        "prompt_version": PROMPT_VERSION,
+        "llm_reasoning": settings.llm_reasoning,
         "timestamp": datetime.now(UTC).isoformat(timespec="seconds"),
         "llm_mode": settings.llm_mode.value,
         "model": settings.model_for(NODE),
@@ -143,7 +147,10 @@ async def run(limit: int | None, concurrency: int, ids: list[str] | None) -> dic
     }
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     safe_model = payload["model"].replace(":", "_").replace("/", "_")
-    out = RESULTS_DIR / f"coverage_{payload['timestamp'].replace(':', '')}_{safe_model}.json"
+    out = (
+        RESULTS_DIR
+        / f"coverage_{dataset}_{payload['timestamp'].replace(':', '')}_{safe_model}.json"
+    )
     out.write_text(json.dumps(payload, indent=2))
     write_report()
     print(json.dumps(summary, indent=2))
@@ -156,8 +163,9 @@ def main() -> None:
     p.add_argument("--limit", type=int)
     p.add_argument("--concurrency", type=int, default=1)
     p.add_argument("--ids", type=lambda s: s.split(","))
+    p.add_argument("--dataset", choices=sorted(DATASETS), default="dev")
     args = p.parse_args()
-    asyncio.run(run(args.limit, args.concurrency, args.ids))
+    asyncio.run(run(args.limit, args.concurrency, args.ids, args.dataset))
 
 
 if __name__ == "__main__":

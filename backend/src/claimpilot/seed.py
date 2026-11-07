@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import csv
+import json
 import random
 from dataclasses import dataclass
 from datetime import date
@@ -233,6 +234,15 @@ def build_policies(
     return out
 
 
+def export_core_valuations(policies: list[Policy]) -> None:
+    """The mock core system gets its own vehicle-valuation extract (it never reads our DB)."""
+    from claimpilot.core_system.app import VALUATIONS_FILE
+
+    VALUATIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    data = {p.vehicle["vin"]: {"acv": p.vehicle_acv} for p in policies}
+    VALUATIONS_FILE.write_text(json.dumps(data, indent=2, sort_keys=True))
+
+
 async def seed() -> dict[str, int | str]:
     rng = random.Random(42)
     if KAGGLE_CSV.exists():
@@ -240,10 +250,13 @@ async def seed() -> dict[str, int | str]:
     else:
         rows, source = synthetic_rows(rng, N_POLICIES), "synthetic_fallback"
 
+    built = build_policies(rows, rng)
+    export_core_valuations([p for p, _ in built])
+
     async with get_sessionmaker()() as session, session.begin():
         await session.execute(delete(ClaimHistoryProfile))
         await session.execute(delete(Policy))
-        for policy, history in build_policies(rows, rng):
+        for policy, history in built:
             session.add(policy)
             await session.flush()
             session.add(history)

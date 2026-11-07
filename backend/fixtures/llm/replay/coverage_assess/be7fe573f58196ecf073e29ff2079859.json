@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1065,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "EXC-1",
+        "quote": "We will not pay for loss due to and confined to wear and tear, freezing, mechanical or electrical breakdown or failure, or road damage to tires, unless the damage results from the total theft of your covered auto."
+      },
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations. \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "The claimant states the accident was caused by 'brakes failed.' Under the policy, mechanical or electrical breakdown or failure is specifically excluded. While the impact with a fence would typically fall under collision coverage (COLL-1), the cause of the loss is a mechanical failure, which is excluded by EXC-1."
+  },
+  "output_tokens": 254
+}

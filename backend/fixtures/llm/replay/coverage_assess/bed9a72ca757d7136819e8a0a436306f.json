@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1365,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: ... water or flood;"
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states that 'Flash flooding filled my street and water came up over the floor of the car.' The cause of loss is water/flood.\n\n2. Insuring clause: [COMP-1] covers 'water or flood' as a loss considered other than collision.\n\n3. Exclusions: \n- [EXC-1] (Wear and tear, mechanical breakdown) does not apply because the damage is caused by a covered peril (flood), not 'due to and confined to' mechanical breakdown.\n- [EXC-2] (Commercial use) is not applicable as the facts do not mention any commercial activity.\n- [EXC-3] (Racing) is not applicable as the facts do not mention a racing facility.\n- [EXC-4] (Intentional damage) is not applicable as the facts do not mention intentional acts.\n- [EXC-5] (Unlicensed driver) is not applicable as the facts do not mention the driver's license status.\n- [EXC-6] (Custom equipment) is not applicable as the claim is for the vehicle (interior/engine).\n- [EXC-7] (Nuclear, war, etc.) is not applicable.\n\n4. Conclusion: The cause of loss (flood) is covered under the comprehensive coverage clause [COMP-1]."
+  },
+  "output_tokens": 369
+}

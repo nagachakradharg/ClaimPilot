@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1357,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object"
+      },
+      {
+        "clause_id": "EXC-2",
+        "quote": "This exclusion does not apply to shared-expense car pools."
+      }
+    ],
+    "coverage_part": "collision",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states they \"hit the car ahead in traffic,\" which constitutes an impact with another vehicle.\n2. Insuring clause: [COLL-1] covers \"direct and accidental loss to your covered auto caused by collision,\" where \"Collision\" means \"impact with another vehicle.\"\n3. Exclusions: \n- [EXC-2] (Commercial use) does not apply because the facts state this was a carpool for gas splitting, which is explicitly allowed as a \"shared-expense car pool.\"\n- [EXC-3] (Racing) is not applicable as the incident occurred in traffic.\n- [EXC-4] (Intentional damage) is not met as there is no indication of intent.\n- [EXC-5] (Unlicensed driver) is not applicable as the facts do not state the driver lacked a license.\n- [EXC-1] (Wear and tear) is not applicable as the damage resulted from an impact.\n4. Conclusion: The cause of loss is established as a collision, which is a covered peril under [COLL-1], and no exclusions apply."
+  },
+  "output_tokens": 374
+}

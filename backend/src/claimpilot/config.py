@@ -39,11 +39,15 @@ class Settings(BaseSettings):
 
     llm_mode: LLMMode = LLMMode.FAKE
     # "provider:model", e.g. "ollama:gpt-oss:20b", "openai:<model>", "anthropic:<model>"
-    llm_default_model: str = "ollama:gpt-oss:20b"
+    llm_default_model: str = "ollama:gemma4:12b"  # text + vision; see evals/report.md
     # Per-node overrides as JSON, e.g. {"intake": "openai:<vision-model>"}
     llm_node_models: dict[str, str] = Field(default_factory=dict)
     llm_temperature: float = 0.0
-    llm_timeout_s: float = 60.0
+    # Ollama only: thinking control for reasoning models. Unset = model default;
+    # "false" turns thinking off; "low" | "medium" | "high" set effort where supported (gpt-oss).
+    llm_reasoning: str | None = "false"
+    llm_num_ctx: int = 8192  # Ollama context window (its default of 4096 is tight with photos)
+    llm_timeout_s: float = 120.0
     llm_max_retries: int = 2
     llm_fixtures_dir: Path = BACKEND_DIR / "fixtures" / "llm"
 
@@ -59,6 +63,19 @@ class Settings(BaseSettings):
     langfuse_public_key: str | None = None
     langfuse_secret_key: str | None = None
     langfuse_host: str | None = None
+
+    # "inprocess" runs the service inside this Python process (dev, tests, CLI);
+    # otherwise a URL, e.g. http://core:8100 and http://mcp:8200/mcp in Docker Compose.
+    core_system_url: str = "inprocess"
+    mcp_server_url: str = "inprocess"
+    tool_timeout_s: float = 20.0
+    tool_max_retries: int = 2
+
+    max_photos: int = 6
+    max_photo_bytes: int = 10 * 1024 * 1024
+    photo_max_side_px: int = 1024
+    photo_storage_dir: Path = REPO_DIR / "storage" / "photos"
+    total_loss_threshold: float = 0.75
 
     cors_origins: list[str] = ["http://localhost:5173"]
 

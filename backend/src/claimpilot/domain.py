@@ -27,6 +27,54 @@ class ClaimFacts(BaseModel):
     claimed_amount: float | None = None
 
 
+class Severity(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class ClaimForm(BaseModel):
+    """What the claimant submits. Declared values; photos travel separately."""
+
+    policy_number: str = Field(min_length=3, max_length=32)
+    incident_date: date
+    incident_location: str = Field(min_length=2, max_length=300)
+    description: str = Field(min_length=10, max_length=4000)
+    claimed_amount: float | None = Field(default=None, ge=0)
+
+
+class ExtractionConfidence(BaseModel):
+    incident_date: float = Field(ge=0, le=1)
+    location: float = Field(ge=0, le=1)
+    vehicle: float = Field(ge=0, le=1)
+    damage_areas: float = Field(ge=0, le=1)
+    cause: float = Field(ge=0, le=1)
+    claim_type: float = Field(ge=0, le=1)
+    severity: float = Field(ge=0, le=1)
+
+
+class VehicleSeen(BaseModel):
+    make: str | None = None
+    model: str | None = None
+    color: str | None = None
+
+
+class ClaimExtraction(BaseModel):
+    """LLM output from form + photos."""
+
+    incident_date: date | None = Field(description="Date of loss as stated by the claimant")
+    location: str | None
+    vehicle: VehicleSeen = Field(description="Vehicle as visible in photos / described")
+    damage_areas: list[str] = Field(
+        description="Damaged parts visible or described, e.g. 'rear bumper', 'windshield'"
+    )
+    described_cause: str = Field(description="One sentence: what caused the damage")
+    claimed_amount: float | None
+    claim_type: ClaimType
+    severity: Severity = Field(description="low: cosmetic; medium: panels/parts; high: structural")
+    confidence: ExtractionConfidence = Field(description="0-1 per field; low if not supported")
+
+
 class CoverageDecision(StrEnum):
     COVERED = "covered"
     NOT_COVERED = "not_covered"
@@ -45,8 +93,12 @@ class Citation(BaseModel):
 
 
 class CoverageAssessment(BaseModel):
-    """What the LLM returns. Deductible/limit are NOT asked of the model (computed in code)."""
+    """What the LLM returns. Deductible/limit are NOT asked of the model (computed in code).
+    `reasoning` comes first so models without native thinking reason before deciding."""
 
+    reasoning: str = Field(
+        description="Steps 1-4: cause of loss, insuring clause, exclusions, conditions"
+    )
     decision: CoverageDecision
     coverage_part: CoveragePart = Field(
         description="Which physical-damage coverage applies; 'none' if not covered"
@@ -54,7 +106,6 @@ class CoverageAssessment(BaseModel):
     citations: list[Citation] = Field(
         description="Clauses that support the decision, using clause ids from the context only"
     )
-    reasoning: str = Field(description="2-4 sentences, plain language")
 
 
 class CoverageResult(BaseModel):

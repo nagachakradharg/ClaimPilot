@@ -1,0 +1,12 @@
+{
+  "incident_date": "2026-03-04",
+  "location": "Oak St and 5th Ave, Austin, TX",
+  "vehicle": {"make": "Mazda", "model": "Mazda3", "color": "grey"},
+  "damage_areas": ["rear bumper", "trunk"],
+  "described_cause": "Rear-ended by another vehicle while stopped at a red light.",
+  "claimed_amount": 2400,
+  "claim_type": "collision",
+  "severity": "medium",
+  "confidence": {"incident_date": 0.95, "location": 0.9, "vehicle": 0.8, "damage_areas": 0.85,
+                 "cause": 0.9, "claim_type": 0.95, "severity": 0.8}
+}

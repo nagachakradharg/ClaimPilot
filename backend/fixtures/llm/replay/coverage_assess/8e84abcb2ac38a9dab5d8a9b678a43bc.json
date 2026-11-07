@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1367,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: ... malicious mischief or vandalism; riot or civil commotion"
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states that people smashed the windows of cars during civil unrest. This falls under 'riot or civil commotion' and 'malicious mischief or vandalism'.\n\n2. Insuring clause: [COMP-1] covers 'loss caused by the following is considered other than collision: ... malicious mischief or vandalism; riot or civil commotion'.\n\n3. Exclusions: \n- [EXC-1] (Wear and tear) does not apply as the damage is from vandalism, not mechanical failure.\n- [EXC-2] (Commercial use) is not mentioned in the facts.\n- [EXC-3] (Racing) is not mentioned in the facts.\n- [EXC-4] (Intentional damage) does not apply because the damage was caused by others during civil unrest, not by the insured or a family member.\n- [EXC-5] (Unlicensed driver) is not mentioned in the facts.\n- [EXC-6] (Custom equipment) does not apply as the damage is to the vehicle's glass.\n- [EXC-7] (Nuclear/War) does not apply.\n\n4. Conclusion: The cause of loss (riot/vandalism) is covered under the Other than collision (comprehensive) clause."
+  },
+  "output_tokens": 364
+}

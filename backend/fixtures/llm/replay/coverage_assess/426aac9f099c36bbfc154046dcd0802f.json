@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1351,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: ... falling objects; ... or breakage of glass."
+      },
+      {
+        "clause_id": "COMP-2",
+        "quote": "Repair of a windshield chip without replacement is paid with no deductible."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states a rock kicked up by a truck chipped the windshield. This falls under 'falling objects' or 'breakage of glass' within the context of the policy.\n2. Insuring clause: [COMP-1] covers 'breakage of glass' as 'other than collision'. [COMP-2] also addresses glass breakage, stating that if caused by a collision, it can be treated as collision, but the facts here indicate a falling object (rock) rather than a vehicle impact.\n3. Exclusions: None of the exclusions apply. [EXC-1] (Wear and tear) does not apply because the damage was caused by a rock, not wear and tear. [EXC-2] (Commercial use), [EXC-3] (Racing), [EXC-4] (Intentional damage), [EXC-5] (Unlicensed driver), [EXC-6] (Custom equipment), and [EXC-7] (Nuclear/War) are not supported by the facts of the claim. \n4. Conclusion: The loss is covered under the comprehensive (other than collision) portion of the policy."
+  },
+  "output_tokens": 364
+}

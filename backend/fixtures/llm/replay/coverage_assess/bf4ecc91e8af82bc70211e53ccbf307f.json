@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1332,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision... Loss caused by the following is considered other than collision: ... theft or larceny; ... malicious mischief or vandalism"
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states that thieves sawed the catalytic converter off the car. This falls under 'theft or larceny' and 'malicious mischief or vandalism'.\n\n2. Insuring clause: [COMP-1] covers 'theft or larceny' and 'malicious mischief or vandalism' as 'Other than collision' coverage.\n\n3. Exclusions: \n- [EXC-1] (Wear and tear, mechanical breakdown) does not apply because the damage was caused by theft, not wear and tear or mechanical failure.\n- [EXC-6] (Custom equipment and personal property) applies to non-permanently installed electronic equipment or personal property. A catalytic converter is a permanent part of the vehicle's exhaust system, not personal property or non-permanently installed electronic equipment.\n- [EXC-2], [EXC-3], [EXC-4], [EXC-5], and [EXC-7] are not applicable based on the facts provided.\n\n4. Conditions: [COMP-3] requires reporting the theft to the police within 48 hours and a 30-day waiting period for recovery. The claim does not state whether these conditions were met, but the existence of a waiting period does not change the determination of coverage."
+  },
+  "output_tokens": 379
+}

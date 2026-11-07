@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1366,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: ... hail, water or flood"
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states a hail storm left dents across the roof and hood. \n2. Insuring clause: [COMP-1] covers 'loss caused by the following is considered other than collision: ... hail, water or flood'. \n3. Exclusions: I reviewed the exclusions. [EXC-2] (Commercial use), [EXC-3] (Racing), [EXC-4] (Intentional damage), [EXC-5] (Unlicensed driver), [EXC-6] (Custom equipment), and [EXC-7] (Nuclear/War) do not apply as the facts do not indicate any of these conditions were met. [EXC-1] (Wear and tear) does not apply because the damage is caused by a hail storm, not wear and tear or mechanical breakdown. \n4. Conclusion: The cause of loss (hail) is explicitly covered under the Other than collision (comprehensive) clause."
+  },
+  "output_tokens": 284
+}

@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1347,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      }
+    ],
+    "coverage_part": "collision",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states the brakes failed and the vehicle 'crashed into a fence.' This constitutes an impact with an object.\n2. Insuring clause: [COLL-1] covers 'impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building.' A fence is an object.\n3. Exclusions: \n- [EXC-1] (Wear and tear/mechanical breakdown) does not apply because the damage resulted from a collision (impact with a fence), not a breakdown confined to the mechanical system itself.\n- [EXC-2] (Commercial use) is not mentioned in the facts.\n- [EXC-3] (Racing) is not mentioned in the facts.\n- [EXC-4] (Intentional damage) is not mentioned in the facts.\n- [EXC-5] (Unlicensed driver) is not mentioned in the facts.\n- [EXC-6] (Custom equipment) is not applicable to the body damage described.\n- [EXC-7] (Nuclear/War) is not mentioned in the facts.\n4. Conclusion: The cause of loss is established as a collision with an object, which is a covered peril under [COLL-1]."
+  },
+  "output_tokens": 382
+}

@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1293,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      },
+      {
+        "clause_id": "EXC-3",
+        "quote": "We will not pay for loss to your covered auto while it is located inside a facility designed for racing, for the purpose of competing in, practicing or preparing for any prearranged or organized racing or speed contest."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claimant states they 'spun out during timed laps and hit the barrier.' This constitutes an impact with an object (the barrier).\n2. Insuring clause: [COLL-1] covers 'impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building.' A barrier at a speedway falls under 'object'.\n3. Exclusions: \n- [EXC-3] Racing: This exclusion applies to loss while the auto is 'located inside a facility designed for racing, for the purpose of competing in, practicing or preparing for any prearranged or organized racing or speed contest.' The claim states the incident occurred at a 'track day at the speedway' during 'timed laps'. A track day with timed laps qualifies as a prearranged or organized racing or speed contest. Therefore, the exclusion applies.\n- [EXC-2] Commercial use: Not applicable as there is no mention of carrying persons/property for a fee.\n- [EXC-5] Unlicensed driver: The facts do not state the driver was unlicensed.\n4. Conclusion: The loss is caused by a collision, but the activity (track day/timed laps) falls under the Racing exclusion [EXC-3]."
+  },
+  "output_tokens": 447
+}

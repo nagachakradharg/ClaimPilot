@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1370,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision"
+      },
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision"
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "ambiguous",
+    "reasoning": "1. Cause of loss: The claimant states they found damage to the side of the car but explicitly states, 'I don't know what happened.' The cause of loss is not established.\n\n2. Insuring clause: Because the cause of loss is unknown, it cannot be mapped to either COLL-1 (Collision) or COMP-1 (Other than collision).\n\n3. Exclusions: No exclusions can be applied because the cause of loss is not established.\n\n4. Decision: The facts are insufficient to determine coverage because the cause of loss is unknown."
+  },
+  "output_tokens": 240
+}

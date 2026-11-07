@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1069,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations. Loss caused by the following is considered other than collision: ... breakage of glass."
+      },
+      {
+        "clause_id": "COMP-2",
+        "quote": "Repair of a windshield chip without replacement is paid with no deductible."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "The claim involves a windshield chip caused by a rock (falling object/impact), which falls under 'other than collision' coverage as defined in COMP-1. Specifically, COMP-1 includes 'breakage of glass' as a non-collision peril. Furthermore, COMP-2 explicitly states that repair of a windshield chip without replacement is covered with no deductible."
+  },
+  "output_tokens": 217
+}

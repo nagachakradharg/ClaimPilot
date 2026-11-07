@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1393,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: ... water or flood;"
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states the car was submerged because the underground garage flooded during a hurricane. The cause of loss is flood/water.\n2. Insuring clause: [COMP-1] covers 'water or flood' as 'other than collision'.\n3. Exclusions: \n- [EXC-1] (Wear and tear/mechanical breakdown) does not apply because the damage resulted from a covered peril (flood), not 'due to and confined to' mechanical breakdown.\n- [EXC-2] (Commercial use) is not mentioned in the claim.\n- [EXC-3] (Racing) is not mentioned in the claim.\n- [EXC-4] (Intentional damage) is not mentioned in the claim.\n- [EXC-5] (Unlicensed driver) is not mentioned in the claim.\n- [EXC-6] (Custom equipment) is not applicable as the claim involves the vehicle/engine/interior.\n- [EXC-7] (Nuclear/War) is not mentioned in the claim.\nThe facts establish a covered peril (flood) under the comprehensive coverage clause."
+  },
+  "output_tokens": 321
+}

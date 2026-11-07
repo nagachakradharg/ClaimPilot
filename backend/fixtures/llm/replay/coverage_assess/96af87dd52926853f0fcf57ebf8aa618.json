@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1373,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision"
+      },
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision... Loss caused by the following is considered other than collision: missiles or falling objects; ... malicious mischief or vandalism; ..."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "ambiguous",
+    "reasoning": "The claimant states they are \"not sure what happened\" and that the car was \"parked under trees\" when the dents occurred. The claim does not establish a specific cause of loss (e.g., falling objects, vandalism, or collision). Because the cause of loss is unknown, the claim is ambiguous. Per the instructions, I cannot choose 'covered' when the cause of loss is unknown."
+  },
+  "output_tokens": 223
+}

@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1290,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      },
+      {
+        "clause_id": "EXC-2",
+        "quote": "We will not pay for loss to your covered auto while it is being used to carry persons or property for a fee, including while the driver is logged in to a transportation network or delivery platform."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claimant states they 'backed into a pole'. This constitutes an impact with an object.\n2. Insuring clause: [COLL-1] covers 'impact with another vehicle or object, including a... pole'.\n3. Exclusions: The claim states the driver was 'logged into a package delivery app making drop-offs'. This meets the conditions of [EXC-2] (Commercial use and ride-sharing), which excludes coverage for loss while the auto is being used to carry persons or property for a fee, including while the driver is logged in to a delivery platform. Because the exclusion applies, coverage is denied."
+  },
+  "output_tokens": 313
+}

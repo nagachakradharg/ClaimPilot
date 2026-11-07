@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1369,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      }
+    ],
+    "coverage_part": "collision",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states they hit a cyclist who ran a red light, resulting in a dented front bumper and hood. This constitutes an impact with an object (the cyclist/bicycle).\n2. Insuring clause: [COLL-1] covers 'impact with another vehicle or object'. A cyclist/bicycle qualifies as an object.\n3. Exclusions: \n- [EXC-1] (Wear and tear) does not apply as the damage is from an impact, not mechanical failure.\n- [EXC-2] (Commercial use) is not mentioned in the claim.\n- [EXC-3] (Racing) is not mentioned in the claim.\n- [EXC-4] (Intentional damage) is not mentioned; the claim describes an accident.\n- [EXC-5] (Unlicensed driver) is not mentioned.\n- [EXC-6] (Custom equipment) does not apply to the body of the car.\n- [EXC-7] (Nuclear/War) does not apply.\nThe facts establish a covered collision."
+  },
+  "output_tokens": 343
+}

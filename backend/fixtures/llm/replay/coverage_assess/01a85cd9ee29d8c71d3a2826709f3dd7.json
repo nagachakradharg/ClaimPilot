@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1398,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision... Loss caused by the following is considered other than collision: missiles or falling objects; fire; theft or larceny; explosion or earthquake; windstorm; hail, water or flood; malicious mischief or vandalism; riot or civil commotion; contact with a bird or animal; or breakage of glass."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states a large tree branch fell onto the car during a windstorm, causing the damage. This constitutes a 'falling object' and a 'windstorm'.\n2. Insuring clause: [COMP-1] covers 'falling objects' and 'windstorm' as 'other than collision' losses. [COMP-2] also acknowledges breakage of glass.\n3. Exclusions: None of the exclusion conditions (wear and tear, commercial use, racing, intentional damage, unlicensed driver, custom equipment, or nuclear/war) are met by the facts provided. The exclusion for wear and tear [EXC-1] is for damage 'due to and confined to' wear and tear, which does not apply to a falling object.\n4. Decision: The cause of loss (falling object/windstorm) is established and covered under the comprehensive coverage clause."
+  },
+  "output_tokens": 320
+}

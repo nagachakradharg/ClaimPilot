@@ -1,0 +1,25 @@
+{
+  "input_tokens": 1036,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations. Loss caused by the following is considered other than collision: ... malicious mischief or vandalism; ..."
+      },
+      {
+        "clause_id": "COLL-1",
+        "quote": "\"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      },
+      {
+        "clause_id": "EXC-4",
+        "quote": "We will not pay for loss caused intentionally by or at the direction of you or any family member."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "ambiguous",
+    "reasoning": "The claimant states the damage 'might have been vandalism or another car,' but the specific cause of the scratch is not confirmed. If it was another car, it would be covered under Collision (COLL-1). If it was vandalism, it would be covered under Comprehensive (COMP-1). However, because the cause is unknown, and the policy excludes intentional damage (EXC-4), the coverage cannot be determined without further investigation into the source of the scratch."
+  },
+  "output_tokens": 303
+}

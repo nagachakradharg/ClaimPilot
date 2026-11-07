@@ -6,7 +6,11 @@ Targets (requirements §1): decision accuracy ≥ 80%, safe-escalation recall �
 
 Runs in `fake` mode only check the wiring; their numbers mean nothing.
 
-| Run (UTC) | Suite | Model | Mode | N | Decision acc. | Escalation recall | False auto-approvals | Citation correct | p50 ms | Tokens in/out | Errors |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| 2026-11-24T07:17 | coverage | ollama:gpt-oss:20b | record | 30 | 90% | 100% | 0 | 93% | 28093.0 | 1069/536 | 0 |
-| 2026-11-24T06:46 | coverage | ollama:gpt-oss:20b | record | 2 | 100% | 100% | 0 | 100% | 257442.5 | 1146/391 | 0 |
+| Run (UTC) | Suite | Model | Prompt | Mode | N | Decision acc. | Escalation recall | False auto-approvals | Citation correct | p50 ms | Tokens in/out | Errors |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-11-26T07:44 | coverage_holdout | ollama:gemma4:12b | v2 | record | 24 | 100% | 100% | 0 | 83% | 22777.9 | 1330/329 | 0 |
+| 2026-11-26T07:26 | coverage_holdout | ollama:gemma4:12b | v1 | record | 24 | 92% | 92% | 1 | 83% | 14566.5 | 1048/214 | 0 |
+| 2026-11-26T07:36 | coverage_dev | ollama:gemma4:12b | v2 | record | 30 | 97% | 100% | 0 | 100% | 19906.4 | 1328/321 | 0 |
+| 2026-11-26T07:16 | coverage | ollama:gemma4:12b | v1 | record | 30 | 83% | 93% | 1 | 90% | 12871.9 | 1046/217 | 0 |
+| 2026-11-24T07:17 | coverage | ollama:gpt-oss:20b | v1 | record | 30 | 90% | 100% | 0 | 93% | 28093.0 | 1069/536 | 0 |
+| 2026-11-24T06:46 | coverage | ollama:gpt-oss:20b | v1 | record | 2 | 100% | 100% | 0 | 100% | 257442.5 | 1146/391 | 0 |

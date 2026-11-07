@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1406,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-3",
+        "quote": "For theft of your covered auto, you must report the theft to the police within 48 hours of discovering it. We will pay for loss only after 30 days have passed without recovery of the vehicle, unless the vehicle is recovered earlier in damaged condition."
+      },
+      {
+        "clause_id": "EXC-1",
+        "quote": "We will not pay for loss due to and confined to wear and tear, freezing, mechanical or electrical breakdown or failure, or road damage to tires, unless the damage results from the total theft of your covered auto."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claim states the vehicle was stolen and subsequently found stripped of its wheels and seats. The primary cause of loss is theft.\n2. Insuring clause: [COMP-3] provides coverage for 'Theft of the entire vehicle'. [COMP-1] also covers 'theft or larceny' as a category of 'Other than collision' loss.\n3. Exclusions: \n- [EXC-1] (Wear and tear, mechanical breakdown) does not apply because the damage resulted from the total theft of the covered auto, which is an exception provided in the clause.\n- [EXC-2] (Commercial use), [EXC-3] (Racing), [EXC-4] (Intentional damage), [EXC-5] (Unlicensed driver), [EXC-6] (Custom equipment), and [EXC-7] (Nuclear/War) are not applicable as the facts do not mention these conditions.\n4. Conditions: The claimant reported the theft to the police the same day, satisfying the requirement in [COMP-3] to report within 48 hours. The vehicle was recovered in three days, which is less than the 30-day waiting period mentioned in [COMP-3], but the policy states coverage applies if the vehicle is 'recovered earlier in damaged condition'. The claim states it was found stripped of wheels and seats (damaged condition)."
+  },
+  "output_tokens": 480
+}

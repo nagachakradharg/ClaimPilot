@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1288,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: ... fire; ..."
+      },
+      {
+        "clause_id": "EXC-4",
+        "quote": "We will not pay for loss caused intentionally by or at the direction of you or any family member."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claimant states the husband 'deliberately set my car on fire' following an argument. This establishes the cause as intentional fire. \n2. Insuring clause: [COMP-1] covers 'fire' as an 'other than collision' loss. \n3. Exclusions: [EXC-4] (Intentional damage) states the policy will not pay for loss 'caused intentionally by or at the direction of you or any family member.' The facts state the husband (a family member) deliberately set the car on fire. Because the loss was caused intentionally by a family member, the conditions of [EXC-4] are met. \n4. Decision: The exclusion for intentional damage by a family member applies to the cause of loss (intentional fire)."
+  },
+  "output_tokens": 289
+}

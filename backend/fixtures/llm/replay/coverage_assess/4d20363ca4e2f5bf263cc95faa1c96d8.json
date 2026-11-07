@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1046,
+  "model": "ollama:qwen3-vl:8b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations. \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      }
+    ],
+    "coverage_part": "collision",
+    "decision": "covered",
+    "reasoning": "The claim describes a rear-end collision at a red light, which is explicitly covered under COLL-1 as an impact with another vehicle. No exclusion applies: EXC-4 (intentional damage) does not apply because the damage was caused by another driver, not intentionally by the claimant or family member; EXC-5 (unlicensed driver) does not apply because the insured vehicle was operated by a licensed driver (the claimant) and the exclusion pertains only to the insured vehicle's operation. Other exclusions (EXC-1, EXC-2, EXC-3, EXC-6, EXC-7) are irrelevant to the collision cause of damage to the insured vehicle."
+  },
+  "output_tokens": 1807
+}

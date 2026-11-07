@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1376,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object"
+      },
+      {
+        "clause_id": "EXC-2",
+        "quote": "We will not pay for loss to your covered auto while it is being used to carry persons or property for a fee, including while the driver is logged in to a transportation network or delivery platform."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claimant states they \"hit the car in front of me,\" which constitutes an impact with another vehicle.\n\n2. Insuring clause: This falls under [COLL-1] Collision coverage, which covers \"impact with another vehicle or object.\"\n\n3. Exclusions: The claimant admits they were \"waiting for a ride request\" with their \"rideshare app on.\" This triggers the exclusion [EXC-2] Commercial use and ride-sharing, which states the policy will not pay for loss \"while the driver is logged in to a transportation network or delivery platform.\" The facts confirm the driver was logged into a transportation network (the rideshare app) at the time of the loss.\n\n4. Conclusion: Because the exclusion [EXC-2] applies to the circumstances of the loss, coverage is excluded."
+  },
+  "output_tokens": 341
+}

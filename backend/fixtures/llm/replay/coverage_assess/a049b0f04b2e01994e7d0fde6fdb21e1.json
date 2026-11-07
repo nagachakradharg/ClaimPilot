@@ -1,0 +1,17 @@
+{
+  "input_tokens": 947,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "LIAB-2",
+        "quote": "This policy provides liability coverage only. It does not include Collision or Other Than Collision (comprehensive) coverage. We will not pay for loss to your covered auto from any cause, including collision, theft, fire, vandalism, weather, or glass breakage."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claim states the vehicle was stolen from a mall parking lot.\n2. Insuring clause: The policy is a liability-only policy. [LIAB-1] provides coverage for bodily injury or property damage to others. It does not provide coverage for theft of the insured's own vehicle.\n3. Exclusions: [LIAB-2] explicitly states the policy does not include Other Than Collision (comprehensive) coverage and states, 'We will not pay for loss to your covered auto from any cause, including... theft'.\n4. Conclusion: The policy does not include coverage for theft of the insured's vehicle."
+  },
+  "output_tokens": 252
+}

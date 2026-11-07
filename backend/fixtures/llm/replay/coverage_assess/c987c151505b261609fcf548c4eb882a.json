@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1366,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "EXC-4",
+        "quote": "We will not pay for loss caused intentionally by or at the direction of you or any family member."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claimant states the son 'deliberately' drove the car into the garage wall. This indicates the loss was caused intentionally by a family member.\n2. Insuring clause: The collision clause [COLL-1] covers 'impact with another vehicle or object, including a... building.' A garage wall is an object/building.\n3. Exclusions: Exclusion [EXC-4] states the policy will not pay for loss 'caused intentionally by or at the direction of you or any family member.' The facts state the son (a family member) acted 'deliberately' (intentionally) to cause the damage. Therefore, the exclusion applies."
+  },
+  "output_tokens": 225
+}

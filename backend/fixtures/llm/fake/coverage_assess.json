@@ -1,0 +1,6 @@
+{
+  "decision": "covered",
+  "coverage_part": "collision",
+  "citations": [{"clause_id": "COLL-1", "quote": "We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations."}],
+  "reasoning": "Being rear-ended by another vehicle is a collision under COLL-1, and no exclusion applies."
+}

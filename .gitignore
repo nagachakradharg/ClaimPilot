@@ -13,3 +13,5 @@ dist/
 .DS_Store
 # Raw third-party datasets are downloaded locally, never committed (license terms).
 data/raw/
+# Uploaded claim photos (local volume; object storage in cloud)
+storage/

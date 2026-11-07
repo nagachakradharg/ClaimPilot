@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1319,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      },
+      {
+        "clause_id": "EXC-5",
+        "quote": "We will not pay for loss sustained while your covered auto is being operated by a person who does not hold a valid driver's license, or by a person specifically excluded in the Declarations."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claimant states the vehicle \"hit a mailbox.\" \n2. Insuring clause: This falls under [COLL-1] Collision coverage, which includes \"impact with another vehicle or object\" (a mailbox is an object).\n3. Exclusions: The claim states the driver was the claimant's \"15-year-old nephew, who does not have a driver's license.\" This meets the conditions of [EXC-5] Unlicensed or excluded driver, which states the insurer will not pay for loss sustained while the auto is being operated by a person who does not hold a valid driver's license. Because the exclusion applies, coverage is denied."
+  },
+  "output_tokens": 321
+}

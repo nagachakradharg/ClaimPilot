@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1094,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations. \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      },
+      {
+        "clause_id": "EXC-2",
+        "quote": "We will not pay for loss to your covered auto while it is being used to carry persons or property for a fee, including while the driver is logged in to a transportation network or delivery platform."
+      }
+    ],
+    "coverage_part": "collision",
+    "decision": "not_covered",
+    "reasoning": "The claimant admits to being logged into a rideshare app (a transportation network) at the time of the incident. Clause EXC-2 explicitly excludes coverage for loss while the vehicle is being used for such purposes, including while the driver is logged into a transportation network. Although the collision itself is covered under COLL-1, the exclusion in EXC-2 applies to the circumstances of the operation."
+  },
+  "output_tokens": 269
+}

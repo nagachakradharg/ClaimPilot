@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1324,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "EXC-1",
+        "quote": "We will not pay for loss due to and confined to wear and tear, freezing, mechanical or electrical breakdown or failure, or road damage to tires, unless the damage results from the total theft of your covered auto."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claim states the engine seized because the oil was never changed. This is a mechanical failure/breakdown.\n2. Insuring clause: The policy does not provide coverage for mechanical breakdown. [COLL-1] covers collision (impact/upset) and [COMP-1] covers specific perils like fire, theft, or falling objects, but does not include mechanical failure.\n3. Exclusions: [EXC-1] explicitly states: 'We will not pay for loss due to and confined to wear and tear, freezing, mechanical or electrical breakdown or failure...'. The facts of the claim (seized engine due to lack of oil changes) fall directly into this exclusion."
+  },
+  "output_tokens": 253
+}

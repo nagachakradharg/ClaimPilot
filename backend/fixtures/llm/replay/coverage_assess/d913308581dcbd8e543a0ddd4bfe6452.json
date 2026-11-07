@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1456,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      }
+    ],
+    "coverage_part": "collision",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states they hit the garage wall while pulling into the garage. This is an impact with an object.\n2. Insuring clause: [COLL-1] covers 'impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building.' A garage wall constitutes an object/building.\n3. Exclusions: \n- [EXC-1] Wear and tear/mechanical breakdown does not apply as the damage was caused by an impact.\n- [EXC-2] Commercial use is not mentioned.\n- [EXC-3] Racing is not mentioned.\n- [EXC-4] Intentional damage is not mentioned; the claimant states they 'misjudged the distance,' which is an accidental event.\n- [EXC-5] No information is provided regarding the driver's license status.\n- [EXC-6] The damage is to the front bumper (part of the auto), not personal property.\n- [EXC-7] Nuclear/war/confiscation is not mentioned.\n4. Conclusion: The cause of loss is established as a collision with an object, which is covered under [COLL-1]."
+  },
+  "output_tokens": 370
+}

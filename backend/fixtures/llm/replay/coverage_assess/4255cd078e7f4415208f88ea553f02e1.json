@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1079,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations. \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      }
+    ],
+    "coverage_part": "collision",
+    "decision": "covered",
+    "reasoning": "The claimant's description of hitting a concrete pole while backing out of a parking spot falls directly under the definition of 'Collision' provided in clause COLL-1, which explicitly includes impact with a 'pole'. There are no applicable exclusions in the policy that would negate this coverage based on the facts provided."
+  },
+  "output_tokens": 186
+}

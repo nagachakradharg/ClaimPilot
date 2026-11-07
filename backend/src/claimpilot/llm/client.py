@@ -100,7 +100,12 @@ class LLMClient:
                     schema.model_validate(output)  # fakes must also satisfy the contract
                 return output
 
-            key = replay_key(node, spec, schema.__name__ if schema else None, messages)
+            variant = (
+                f"{spec}|reasoning={self.settings.llm_reasoning}"
+                if self.settings.llm_reasoning
+                else spec
+            )
+            key = replay_key(node, variant, schema.__name__ if schema else None, messages)
             if mode is LLMMode.REPLAY:
                 record.source = "replay"
                 entry = self.replay.load(node, key)

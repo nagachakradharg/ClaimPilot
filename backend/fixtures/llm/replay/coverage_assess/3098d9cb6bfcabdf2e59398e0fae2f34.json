@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1042,
+  "model": "ollama:qwen3-vl:8b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations. \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      }
+    ],
+    "coverage_part": "collision",
+    "decision": "covered",
+    "reasoning": "The claim describes backing out of a parking garage spot and hitting a concrete pole, which is explicitly included in the definition of collision under COLL-1. No exclusion applies: EXC-1 (wear and tear) is irrelevant as the damage is from impact; EXC-2 (commercial use) does not apply as the incident is personal use; EXC-3 (racing) is not relevant; EXC-4 (intentional damage) is not applicable as the incident was accidental; EXC-5 (unlicensed driver) is not indicated; EXC-6 (custom equipment) does not apply to the rear bumper; EXC-7 (nuclear, war) is irrelevant. The claim type matches collision coverage."
+  },
+  "output_tokens": 1475
+}

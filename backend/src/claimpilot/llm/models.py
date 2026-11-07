@@ -27,4 +27,9 @@ def build_chat_model(spec: str) -> BaseChatModel:
     kwargs: dict = {"temperature": settings.llm_temperature}
     if provider in {"openai", "anthropic"}:
         kwargs["max_retries"] = 0
+    if provider == "ollama":
+        kwargs["num_ctx"] = settings.llm_num_ctx
+        if settings.llm_reasoning is not None:
+            r = settings.llm_reasoning.lower()
+            kwargs["reasoning"] = {"true": True, "false": False}.get(r, r)
     return init_chat_model(model, model_provider=provider, **kwargs)

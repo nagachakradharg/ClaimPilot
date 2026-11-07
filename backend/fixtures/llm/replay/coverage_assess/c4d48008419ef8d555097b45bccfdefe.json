@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1377,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: ... fire; ..."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states that someone set fire to several cars on their block, and the police are treating it as arson. The cause of loss is fire.\n2. Insuring clause: [COMP-1] covers 'fire' as a loss considered 'other than collision'.\n3. Exclusions: \n- [EXC-1] (Wear and tear/mechanical breakdown) does not apply because the damage is caused by fire, not wear and tear or mechanical failure.\n- [EXC-2] (Commercial use) is not applicable as there is no mention of the vehicle being used for a fee.\n- [EXC-3] (Racing) is not applicable as the vehicle was parked on a block.\n- [EXC-4] (Intentional damage) does not apply because the fire was set by an unknown person, not by the insured or a family member.\n- [EXC-5] (Unlicensed driver) is not applicable as the vehicle was not being operated during the incident.\n- [EXC-6] (Custom equipment) is not applicable as the claim involves the vehicle's body/engine bay/interior.\n- [EXC-7] (Nuclear/War) is not applicable as the cause is fire, not war or nuclear reaction.\n4. Conclusion: The cause of loss (fire) is covered under the comprehensive coverage clause [COMP-1]."
+  },
+  "output_tokens": 378
+}

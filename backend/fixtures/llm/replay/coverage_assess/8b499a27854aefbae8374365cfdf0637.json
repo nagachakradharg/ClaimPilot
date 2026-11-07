@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1347,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "EXC-1",
+        "quote": "We will not pay for loss due to and confined to wear and tear, freezing, mechanical or electrical breakdown or failure, or road damage to tires, unless the damage results from the total theft of your covered auto."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claimant states the tire went flat after running over a nail. This constitutes road damage to a tire.\n2. Insuring clause: The policy does not provide coverage for road damage to tires. [COLL-1] covers collision (impact with objects), and [COMP-1] covers specific perils like fire, theft, or falling objects, but does not include road damage or tire punctures.\n3. Exclusions: [EXC-1] specifically excludes 'road damage to tires' unless the damage results from the total theft of the covered auto. The claim does not mention theft. Therefore, the exclusion applies."
+  },
+  "output_tokens": 239
+}

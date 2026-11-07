@@ -24,3 +24,58 @@ def make_settings(tmp_path):
         return Settings(_env_file=None, **(base | overrides))
 
     return _make
+
+
+TEST_DB = "claimpilot_test"
+
+
+def _ensure_test_db() -> str | None:
+    """Create the throwaway test DB if Postgres is reachable; never touches the dev DB."""
+    import psycopg
+
+    url = Settings(_env_file=None).database_url
+    try:
+        with psycopg.connect(
+            url.replace("postgresql+psycopg://", "postgresql://"),
+            autocommit=True,
+            connect_timeout=2,
+        ) as conn:
+            if not conn.execute(
+                "SELECT 1 FROM pg_database WHERE datname = %s", (TEST_DB,)
+            ).fetchone():
+                conn.execute(f"CREATE DATABASE {TEST_DB}")
+    except psycopg.OperationalError:
+        return None
+    return f"{url.rsplit('/', 1)[0]}/{TEST_DB}"
+
+
+TEST_DB_URL = _ensure_test_db()
+requires_db = pytest.mark.skipif(TEST_DB_URL is None, reason="Postgres not reachable")
+
+
+def _clear_caches():
+    from claimpilot.db import get_engine, get_sessionmaker
+    from claimpilot.embeddings import get_embedder
+
+    for cached in (get_settings, get_engine, get_sessionmaker, get_embedder):
+        cached.cache_clear()
+
+
+@pytest.fixture
+async def seeded_db(monkeypatch):
+    from sqlalchemy import text
+
+    from claimpilot.db import get_engine
+    from claimpilot.models import Base
+    from claimpilot.seed import seed
+
+    monkeypatch.setenv("DATABASE_URL", TEST_DB_URL)
+    monkeypatch.setenv("EMBEDDING_PROVIDER", "hash")
+    _clear_caches()
+    async with get_engine().begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        await conn.run_sync(Base.metadata.create_all)
+    await seed()
+    yield
+    await get_engine().dispose()
+    _clear_caches()

@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1456,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object"
+      },
+      {
+        "clause_id": "EXC-5",
+        "quote": "We will not pay for loss sustained while your covered auto is being operated by a person who does not hold a valid driver's license, or by a person specifically excluded in the Declarations."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claimant states they 'rear-ended another car'. This constitutes an impact with another vehicle.\n2. Insuring clause: [COLL-1] covers 'impact with another vehicle'.\n3. Exclusions: The claimant admits to driving with a 'suspended license'. Exclusion [EXC-5] states the policy will not pay for loss sustained while the auto is being operated by a person who 'does not hold a valid driver's license'. A suspended license means the driver does not hold a valid license. Therefore, the exclusion applies."
+  },
+  "output_tokens": 280
+}

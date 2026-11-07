@@ -1,0 +1,538 @@
+{
+  "suite": "coverage",
+  "timestamp": "2026-11-26T07:16:32+00:00",
+  "llm_mode": "record",
+  "model": "ollama:gemma4:12b",
+  "embedding": "fastembed:BAAI/bge-small-en-v1.5",
+  "summary": {
+    "n": 30,
+    "errors": 0,
+    "decision_accuracy": 0.833,
+    "escalation_recall": 0.929,
+    "false_auto_approvals": 1,
+    "citation_correctness": 0.9,
+    "must_cite_recall": 0.967,
+    "llm_calls": 28,
+    "latency_p50_ms": 12871.9,
+    "latency_p95_ms": 18336.1,
+    "avg_input_tokens": 1046,
+    "avg_output_tokens": 217,
+    "confusion": {
+      "covered->covered": 13,
+      "not_covered->not_covered": 12,
+      "ambiguous->covered": 1,
+      "covered->not_covered": 3,
+      "ambiguous->not_covered": 1
+    }
+  },
+  "cases": [
+    {
+      "id": "cov-001",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-002",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-003",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1",
+        "COMP-3"
+      ],
+      "flags": [
+        "quote_not_verbatim:COMP-1"
+      ],
+      "error": false
+    },
+    {
+      "id": "cov-004",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-005",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-006",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1",
+        "COMP-2"
+      ],
+      "flags": [
+        "quote_not_verbatim:COMP-1"
+      ],
+      "error": false
+    },
+    {
+      "id": "cov-007",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [
+        "quote_not_verbatim:COMP-1"
+      ],
+      "error": false
+    },
+    {
+      "id": "cov-008",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [
+        "quote_not_verbatim:COMP-1"
+      ],
+      "error": false
+    },
+    {
+      "id": "cov-009",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-010",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "EXC-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-011",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "EXC-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-012",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-013",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-3"
+      ],
+      "flags": [
+        "quote_not_verbatim:COLL-1"
+      ],
+      "error": false
+    },
+    {
+      "id": "cov-014",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-4"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-015",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-5"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-016",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "EXC-6"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-017",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "LIAB-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-018",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "LIAB-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-019",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "GEN-1"
+      ],
+      "flags": [
+        "policy_cancelled"
+      ],
+      "error": false
+    },
+    {
+      "id": "cov-020",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "GEN-1"
+      ],
+      "flags": [
+        "outside_policy_period"
+      ],
+      "error": false
+    },
+    {
+      "id": "cov-021",
+      "expected": "ambiguous",
+      "predicted": "covered",
+      "decision_ok": false,
+      "part_ok": false,
+      "escalated": false,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [
+        "quote_not_verbatim:COMP-1"
+      ],
+      "error": false
+    },
+    {
+      "id": "cov-022",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-023",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-024",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-025",
+      "expected": "covered",
+      "predicted": "not_covered",
+      "decision_ok": false,
+      "part_ok": false,
+      "escalated": true,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-026",
+      "expected": "ambiguous",
+      "predicted": "not_covered",
+      "decision_ok": false,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-3"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-027",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-028",
+      "expected": "covered",
+      "predicted": "not_covered",
+      "decision_ok": false,
+      "part_ok": false,
+      "escalated": true,
+      "should_escalate": false,
+      "citation_ok": false,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1",
+        "EXC-1",
+        "EXC-7"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-029",
+      "expected": "covered",
+      "predicted": "not_covered",
+      "decision_ok": false,
+      "part_ok": false,
+      "escalated": true,
+      "should_escalate": false,
+      "citation_ok": false,
+      "must_cite_hit": false,
+      "cited": [
+        "EXC-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "cov-030",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": false,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-3",
+        "EXC-6"
+      ],
+      "flags": [],
+      "error": false
+    }
+  ]
+}

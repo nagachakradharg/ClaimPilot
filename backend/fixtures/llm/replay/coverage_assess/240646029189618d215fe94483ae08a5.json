@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1401,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision... Loss caused by the following is considered other than collision: ... falling objects; ..."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states a shopping cart rolled across the parking lot and dented the passenger door. This constitutes a falling object or an impact with an object.\n2. Insuring clause: [COMP-1] covers 'falling objects' as 'other than collision'. While the claim is typed as 'collision', the actual cause (falling object) falls under the comprehensive category.\n3. Exclusions: \n- [EXC-1] (Wear and tear) does not apply as the damage is from an external impact.\n- [EXC-2] (Commercial use) is not mentioned in the facts.\n- [EXC-3] (Racing) is not mentioned in the facts.\n- [EXC-4] (Intentional damage) is not mentioned in the facts.\n- [EXC-5] (Unlicensed driver) is not mentioned in the facts.\n- [EXC-6] (Custom equipment) does not apply to the body of the car.\n- [EXC-7] (Nuclear/War) does not apply.\nThe loss is covered under the 'falling objects' provision of the comprehensive coverage."
+  },
+  "output_tokens": 341
+}

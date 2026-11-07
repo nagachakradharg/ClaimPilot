@@ -9,7 +9,11 @@ Multi-agent processing for personal **auto** insurance claims: intake with visio
 - Data and licenses: [docs/data-sources.md](docs/data-sources.md)
 
 ## Status
-**Week 1.** Done: foundation (week 0), plus synthetic policy forms (`data/policies/`), seed data (claim-history signals mapped from the CC0 Kaggle fraud set), clause-level RAG in pgvector, the coverage subgraph with code-validated citations, and the coverage eval (30 labeled cases).
+**Week 2.** Done: weeks 0–1 (foundation, coverage RAG + eval) plus intake (validation, photo resizing, vision extraction), an MCP server with 6 tools in front of a mock legacy core claims system, deterministic payout, and a parent graph that runs a claim end to end from the CLI:
+
+```bash
+cd backend && uv run python -m claimpilot.cli ../data/claims/demo-001/form.json ../data/claims/demo-001/rear.jpg
+```
 
 ## Quick start (local)
 Prerequisites: [uv](https://docs.astral.sh/uv/) and a Docker runtime.
@@ -43,7 +47,7 @@ Run the coverage eval (writes `evals/report.md`):
 cd backend && LLM_MODE=record uv run python -m claimpilot.evals.coverage
 ```
 
-Models are set per node as `provider:model` (`LLM_DEFAULT_MODEL`, `LLM_NODE_MODELS`). Local default: `ollama:gpt-oss:20b`.
+Models are set per node as `provider:model` (`LLM_DEFAULT_MODEL`, `LLM_NODE_MODELS`). Local default: `ollama:gemma4:12b` (text + vision; chosen by the coverage eval, see `evals/report.md`).
 
 ## Layout
 ```

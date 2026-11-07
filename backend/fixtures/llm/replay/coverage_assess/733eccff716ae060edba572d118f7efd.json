@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1457,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COLL-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto caused by collision... \"Collision\" means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building."
+      },
+      {
+        "clause_id": "EXC-2",
+        "quote": "We will not pay for loss to your covered auto while it is being used to carry persons or property for a fee, including while the driver is logged in to a transportation network or delivery platform."
+      }
+    ],
+    "coverage_part": "none",
+    "decision": "not_covered",
+    "reasoning": "1. Cause of loss: The claimant states they \"crashed into another car at an intersection\" while delivering a food order. This constitutes a collision (impact with another vehicle).\n2. Insuring clause: [COLL-1] covers \"direct and accidental loss to your covered auto caused by collision,\" which includes \"impact with another vehicle.\"\n3. Exclusions: The claim states the driver was \"delivering a food order for a delivery app, logged in.\" This meets the conditions of [EXC-2] \"Commercial use and ride-sharing,\" which excludes coverage for loss while the auto is being used to \"carry persons or property for a fee, including while the driver is logged in to a transportation network or delivery platform.\"\n4. Decision: Because the exclusion [EXC-2] applies to the facts of the claim, the loss is not covered."
+  },
+  "output_tokens": 359
+}
