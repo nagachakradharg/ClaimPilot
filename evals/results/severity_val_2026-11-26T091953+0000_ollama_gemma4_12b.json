@@ -1,0 +1,246 @@
+{
+  "suite": "severity_val",
+  "prompt_version": "v2",
+  "timestamp": "2026-11-26T09:19:53+00:00",
+  "llm_mode": "record",
+  "model": "ollama:gemma4:12b",
+  "llm_reasoning": "false",
+  "summary": {
+    "n": 24,
+    "errors": 0,
+    "accuracy": 0.917,
+    "within_one": 1.0,
+    "high_recall": 0.875,
+    "latency_p50_ms": 13421.5,
+    "confusion": {
+      "low->low": 6,
+      "medium->high": 2,
+      "medium->medium": 8,
+      "high->high": 7,
+      "high->medium": 1
+    }
+  },
+  "cases": [
+    {
+      "image": "val-01-low.jpg",
+      "expected": "low",
+      "accepted": [
+        "low"
+      ],
+      "predicted": "low",
+      "error": false
+    },
+    {
+      "image": "val-02-low.jpg",
+      "expected": "low",
+      "accepted": [
+        "low"
+      ],
+      "predicted": "low",
+      "error": false
+    },
+    {
+      "image": "val-03-low.jpg",
+      "expected": "low",
+      "accepted": [
+        "low"
+      ],
+      "predicted": "low",
+      "error": false
+    },
+    {
+      "image": "val-04-low.jpg",
+      "expected": "low",
+      "accepted": [
+        "low"
+      ],
+      "predicted": "low",
+      "error": false
+    },
+    {
+      "image": "val-05-low.jpg",
+      "expected": "low",
+      "accepted": [
+        "low"
+      ],
+      "predicted": "low",
+      "error": false
+    },
+    {
+      "image": "val-06-low.jpg",
+      "expected": "low",
+      "accepted": [
+        "low",
+        "medium"
+      ],
+      "predicted": "low",
+      "error": false
+    },
+    {
+      "image": "val-07-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium",
+        "high"
+      ],
+      "predicted": "high",
+      "error": false
+    },
+    {
+      "image": "val-08-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false
+    },
+    {
+      "image": "val-09-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false
+    },
+    {
+      "image": "val-10-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "high",
+      "error": false
+    },
+    {
+      "image": "val-11-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium",
+        "low"
+      ],
+      "predicted": "medium",
+      "error": false
+    },
+    {
+      "image": "val-12-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false
+    },
+    {
+      "image": "val-13-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false
+    },
+    {
+      "image": "val-14-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false
+    },
+    {
+      "image": "val-15-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium",
+        "low"
+      ],
+      "predicted": "medium",
+      "error": false
+    },
+    {
+      "image": "val-16-medium.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium",
+        "high"
+      ],
+      "predicted": "medium",
+      "error": false
+    },
+    {
+      "image": "val-17-high.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false
+    },
+    {
+      "image": "val-18-high.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "medium",
+      "error": false
+    },
+    {
+      "image": "val-19-high.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false
+    },
+    {
+      "image": "val-20-high.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false
+    },
+    {
+      "image": "val-21-high.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false
+    },
+    {
+      "image": "val-22-high.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false
+    },
+    {
+      "image": "val-23-high.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false
+    },
+    {
+      "image": "val-24-high.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false
+    }
+  ]
+}

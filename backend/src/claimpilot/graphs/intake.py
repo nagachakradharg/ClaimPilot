@@ -23,6 +23,7 @@ from claimpilot.photos import StoredPhoto, resized_jpeg_b64
 from claimpilot.tools import ToolCallError, ToolClient
 
 NODE = "intake_extract"
+PROMPT_VERSION = "v2"
 REQUIRED_FIELDS = ("incident_date", "damage_areas", "cause", "claim_type", "severity")
 
 SYSTEM_PROMPT = """You are an auto-insurance intake specialist.
@@ -33,8 +34,16 @@ Rules:
 - damage_areas: specific parts (e.g. "rear bumper", "windshield", "left front door").
   Include parts visible as damaged in the photos even if the text omits them.
 - claim_type: collision | theft | glass | weather | other.
-- severity: low = cosmetic (scratches, small dents, chip); medium = panels or parts need
-  replacing; high = structural, airbag, multiple major panels, or vehicle not drivable.
+- severity: rate the damage you can actually see on the vehicle, not how dramatic the scene
+  looks. Use the lowest level whose description fits.
+  * low: cosmetic or minor and limited to one area. Scratches, scuffs, paint damage, small
+    dents, a chipped or cracked windshield. Panels are intact; the car is drivable.
+  * medium: parts need repair or replacement but the body structure is intact. Crumpled or
+    detached bumper, dented or creased panels, broken lights, grille or mirror, smashed or
+    shattered glass, hail dents. Broken glass alone is not structural damage.
+  * high: structural or extensive damage, or a likely total loss. Crushed front or rear
+    section, deformed roof, pillars or cabin, displaced wheels, deployed airbags, fire damage,
+    flood water inside the car, rollover, or a heavy object crushing the car.
 - confidence: 0-1 per field. Use < 0.7 when the evidence is weak, missing or contradictory
   (e.g. photos do not show the damage described).
 """

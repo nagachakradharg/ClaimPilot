@@ -71,7 +71,9 @@ class ClaimExtraction(BaseModel):
     described_cause: str = Field(description="One sentence: what caused the damage")
     claimed_amount: float | None
     claim_type: ClaimType
-    severity: Severity = Field(description="low: cosmetic; medium: panels/parts; high: structural")
+    severity: Severity = Field(
+        description="low | medium | high, per the rubric in the instructions"
+    )
     confidence: ExtractionConfidence = Field(description="0-1 per field; low if not supported")
 
 

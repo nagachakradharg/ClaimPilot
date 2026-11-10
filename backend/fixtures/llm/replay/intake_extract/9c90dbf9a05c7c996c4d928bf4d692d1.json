@@ -1,0 +1,34 @@
+{
+  "input_tokens": 812,
+  "model": "ollama:gemma4:12b",
+  "node": "intake_extract",
+  "output": {
+    "claim_type": "collision",
+    "claimed_amount": null,
+    "confidence": {
+      "cause": 1.0,
+      "claim_type": 1.0,
+      "damage_areas": 0.95,
+      "incident_date": 1.0,
+      "location": 0.0,
+      "severity": 0.85,
+      "vehicle": 0.9
+    },
+    "damage_areas": [
+      "front bumper",
+      "front passenger side fender",
+      "hood",
+      "right headlight"
+    ],
+    "described_cause": "road accident",
+    "incident_date": "2026-03-01",
+    "location": null,
+    "severity": "medium",
+    "vehicle": {
+      "color": "Orange",
+      "make": "Volkswagen",
+      "model": "Beetle"
+    }
+  },
+  "output_tokens": 228
+}

@@ -1,0 +1,35 @@
+{
+  "input_tokens": 538,
+  "model": "ollama:gemma4:12b",
+  "node": "intake_extract",
+  "output": {
+    "claim_type": "collision",
+    "claimed_amount": null,
+    "confidence": {
+      "cause": 0.8,
+      "claim_type": 0.9,
+      "damage_areas": 0.95,
+      "incident_date": 1.0,
+      "location": 0.0,
+      "severity": 0.9,
+      "vehicle": 0.9
+    },
+    "damage_areas": [
+      "front bumper",
+      "front left fender",
+      "hood",
+      "headlight (left)",
+      "front wheel/tire area"
+    ],
+    "described_cause": "road accident",
+    "incident_date": "2026-03-01",
+    "location": null,
+    "severity": "high",
+    "vehicle": {
+      "color": "silver/grey",
+      "make": null,
+      "model": null
+    }
+  },
+  "output_tokens": 220
+}

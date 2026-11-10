@@ -1,0 +1,32 @@
+{
+  "input_tokens": 951,
+  "model": "ollama:gemma4:12b",
+  "node": "intake_extract",
+  "output": {
+    "claim_type": "collision",
+    "claimed_amount": null,
+    "confidence": {
+      "cause": 0.0,
+      "claim_type": 0.8,
+      "damage_areas": 1.0,
+      "incident_date": 1.0,
+      "location": 0.0,
+      "severity": 0.9,
+      "vehicle": 1.0
+    },
+    "damage_areas": [
+      "front passenger door window",
+      "front passenger door"
+    ],
+    "described_cause": "not stated",
+    "incident_date": "2026-03-01",
+    "location": null,
+    "severity": "medium",
+    "vehicle": {
+      "color": "gray/dark grey",
+      "make": null,
+      "model": null
+    }
+  },
+  "output_tokens": 203
+}
