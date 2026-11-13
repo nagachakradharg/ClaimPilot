@@ -1,0 +1,10 @@
+{
+  "input_tokens": 503,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_reviewer",
+  "output": {
+    "approved": false,
+    "issues": []
+  },
+  "output_tokens": 18
+}

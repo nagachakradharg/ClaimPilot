@@ -25,3 +25,12 @@ Claim-style damage photos (CC BY / BY-SA / CC0, see data/photos/ATTRIBUTION.md),
 | 2026-11-26T09:19 | val | ollama:gemma4:12b | v2 | record | 24 | 92% | 100% | 88% | 13421.5 | 0 |
 | 2026-11-26T09:06 | dev | ollama:gemma4:12b | v2 | record | 23 | 91% | 100% | 100% | 13129.8 | 0 |
 | 2026-11-26T09:00 | dev | ollama:gemma4:12b | v1 | record | 23 | 74% | 100% | 100% | 13225.6 | 0 |
+
+## Decision letters (FR-6)
+
+Target: decision and amount match the record in 100% of letters. Flagged letters go to an adjuster and are not sent; every sendable letter must pass all checks.
+
+| Run (UTC) | Model | Mode | N | Decision | Amount | No internal leak | Deductible wording | Flagged for edit | Sendable: all checks | Avg revisions | Errors |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-11-26T20:50 | ollama:gemma4:12b | record | 12 | 100% | 100% | 100% | 100% | 0% | 100% | 0.83 | 0 |
+| 2026-11-26T20:44 | ollama:gemma4:12b | record | 12 | 100% | 92% | 100% | 100% | 8% | 91% | 0.75 | 0 |

@@ -1,10 +1,12 @@
 """Parent claim graph: composes the subgraphs with deterministic routing (ADR-0001).
 
     intake --(invalid)--> END
-          \\-> register_core -> coverage --(covered)--> payout -> gate -> END
-                                        \\-------------------------/
+       \\-> register_core -> [coverage || fraud] -> payout? -> gate
+              gate --(any review reason)--> human_review (interrupt) --\\
+                   \\--(none)--> auto_approve -------------------------------> letter -> close
 
-Week 3 adds: fraud (parallel) before the gate, interrupt/resume at the gate, decision letter.
+State is checkpointed in Postgres (thread_id = claim_id), so a claim paused at human_review
+survives a restart and resumes there without re-running earlier steps.
 """
 
 from __future__ import annotations
@@ -12,10 +14,12 @@ from __future__ import annotations
 import contextlib
 import uuid
 from enum import StrEnum
-from typing import TypedDict
+from typing import Any, Literal, TypedDict
 
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
-from pydantic import BaseModel, Field
+from langgraph.types import Command, interrupt
+from pydantic import BaseModel, Field, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from claimpilot.config import Settings, get_settings
@@ -23,7 +27,9 @@ from claimpilot.context import run_context
 from claimpilot.domain import ClaimForm, ClaimType, CoverageDecision, CoveragePart, CoverageResult
 from claimpilot.estimates import RepairEstimates
 from claimpilot.graphs.coverage import build_coverage_graph
+from claimpilot.graphs.fraud import FraudResult, build_fraud_graph
 from claimpilot.graphs.intake import IntakeResult, build_intake_graph
+from claimpilot.graphs.letter import Decision, Letter, LetterInput, build_letter_graph
 from claimpilot.llm import LLMClient
 from claimpilot.mcp_server import CoreClaim, VehicleValue
 from claimpilot.payout import PayoutResult, compute_payout
@@ -35,7 +41,7 @@ class ClaimStatus(StrEnum):
     INVALID = "invalid"  # rejected at intake validation; never entered the lifecycle
     PROCESSING = "processing"
     PENDING_REVIEW = "pending_review"
-    AUTO_APPROVED = "auto_approved"
+    CLOSED = "closed"  # decided (see ClaimRun.decision) and letter produced
     FAILED = "failed"
 
 
@@ -46,16 +52,38 @@ class PayoutOutcome(BaseModel):
     flags: list[str] = Field(default_factory=list)
 
 
+class ReviewDecision(BaseModel):
+    """Adjuster action at the review gate."""
+
+    action: Literal["approve", "deny", "override"]
+    reason: str | None = None
+    payout_amount: float | None = Field(default=None, ge=0)
+    adjuster: str = "adjuster"
+
+    @model_validator(mode="after")
+    def _check(self) -> ReviewDecision:
+        if self.action in ("deny", "override") and not (self.reason or "").strip():
+            raise ValueError(f"a reason is required to {self.action}")
+        if self.action == "override" and self.payout_amount is None:
+            raise ValueError("override requires payout_amount")
+        return self
+
+
 class ClaimRun(BaseModel):
-    """Everything a claim run produced. Persisted and shown in the UI from week 4."""
+    """Everything a claim run produced (persisted via the checkpointer)."""
 
     claim_id: str
     status: ClaimStatus
+    decision: Decision | None = None
+    final_payout: float | None = None
     core_claim_id: str | None = None
     intake: IntakeResult | None = None
     coverage: CoverageResult | None = None
+    fraud: FraudResult | None = None
     payout: PayoutOutcome | None = None
     review_reasons: list[str] = Field(default_factory=list)
+    review: ReviewDecision | None = None
+    letter: Letter | None = None
     error: str | None = None
 
 
@@ -67,8 +95,13 @@ class ClaimState(TypedDict, total=False):
     intake: IntakeResult
     core_claim_id: str
     coverage: CoverageResult
+    fraud: FraudResult
     payout: PayoutOutcome
     review_reasons: list[str]
+    review: ReviewDecision
+    decision: Decision
+    final_payout: float | None
+    letter: Letter
     status: ClaimStatus
 
 
@@ -78,6 +111,9 @@ def review_reasons(state: ClaimState, settings: Settings) -> list[str]:
     cov = state.get("coverage")
     if cov is None or cov.decision is not CoverageDecision.COVERED:
         reasons.append(f"coverage_{cov.decision.value if cov else 'missing'}")
+    fraud = state.get("fraud")
+    if fraud and fraud.score >= settings.fraud_review_threshold:
+        reasons.append(f"fraud_score_{fraud.score:.2f}")
     payout = state.get("payout")
     if payout and payout.result.payout >= settings.payout_review_threshold:
         reasons.append(f"payout_at_or_above_{settings.payout_review_threshold:.0f}")
@@ -85,18 +121,31 @@ def review_reasons(state: ClaimState, settings: Settings) -> list[str]:
     reasons += [f"low_confidence:{f}" for f in intake.low_confidence_fields]
     flags = intake.flags + (cov.flags if cov else []) + (payout.flags if payout else [])
     reasons += [f"flag:{f}" for f in flags]
-    # fraud_score >= FRAUD_REVIEW_THRESHOLD is added with the fraud subgraph (week 3)
-    return reasons
+    return list(dict.fromkeys(reasons))  # de-duplicate, keep order
 
 
 def build_claim_graph(
-    llm: LLMClient, tools: ToolClient, sessionmaker: async_sessionmaker[AsyncSession]
+    llm: LLMClient,
+    tools: ToolClient,
+    sessionmaker: async_sessionmaker[AsyncSession],
+    checkpointer: BaseCheckpointSaver | None = None,
 ):
     settings = get_settings()
     intake_graph = build_intake_graph(llm, tools)
     coverage_graph = build_coverage_graph(llm, sessionmaker)
+    fraud_graph = build_fraud_graph(llm, tools)
+    letter_graph = build_letter_graph(llm)
 
-    async def intake(state: ClaimState) -> ClaimState:
+    async def set_core_status(state: ClaimState, status: str, note: str | None = None) -> None:
+        await tools.call(
+            "update_claim_status",
+            CoreClaim,
+            core_claim_id=state["core_claim_id"],
+            status=status,
+            note=(note or "")[:500] or None,
+        )
+
+    async def intake(state: ClaimState) -> dict[str, Any]:
         out = await intake_graph.ainvoke(
             {
                 "form": state["form"],
@@ -110,7 +159,7 @@ def build_claim_graph(
             "status": ClaimStatus.INVALID if result.errors else ClaimStatus.PROCESSING,
         }
 
-    async def register_core(state: ClaimState) -> ClaimState:
+    async def register_core(state: ClaimState) -> dict[str, Any]:
         facts = state["intake"].facts
         rec = await tools.call(
             "create_claim_record",
@@ -127,11 +176,24 @@ def build_claim_graph(
         )
         return {"core_claim_id": rec.core_claim_id}
 
-    async def coverage(state: ClaimState) -> ClaimState:
+    async def coverage(state: ClaimState) -> dict[str, Any]:
         out = await coverage_graph.ainvoke({"facts": state["intake"].facts})
         return {"coverage": out["result"]}
 
-    async def payout(state: ClaimState) -> ClaimState:
+    async def fraud(state: ClaimState) -> dict[str, Any]:
+        i = state["intake"]
+        out = await fraud_graph.ainvoke(
+            {
+                "form": state["form"],
+                "extraction": i.extraction,
+                "policy": i.policy,
+                "photos": state["photos"],
+                "checks": [],
+            }
+        )
+        return {"fraud": out["result"]}
+
+    async def payout(state: ClaimState) -> dict[str, Any]:
         facts, policy = state["intake"].facts, state["intake"].policy
         cov, ex = state["coverage"], state["intake"].extraction
         value = await tools.call("get_vehicle_value", VehicleValue, vin=policy.vehicle["vin"])
@@ -167,25 +229,77 @@ def build_claim_graph(
             )
         }
 
-    async def gate(state: ClaimState) -> ClaimState:
+    async def gate(state: ClaimState) -> dict[str, Any]:
         reasons = review_reasons(state, settings)
-        status = ClaimStatus.PENDING_REVIEW if reasons else ClaimStatus.AUTO_APPROVED
-        await tools.call(
-            "update_claim_status",
-            CoreClaim,
-            core_claim_id=state["core_claim_id"],
-            status=status.value,
-            note="; ".join(reasons)[:500] or None,
+        if reasons:
+            await set_core_status(state, "pending_review", "; ".join(reasons))
+            return {"review_reasons": reasons, "status": ClaimStatus.PENDING_REVIEW}
+        return {"review_reasons": [], "status": ClaimStatus.PROCESSING}
+
+    async def human_review(state: ClaimState) -> dict[str, Any]:
+        # Pauses here; the adjuster's ReviewDecision is the resume value.
+        # Nothing with side effects may run before interrupt(): the node re-runs on resume.
+        raw = interrupt({"claim_id": state["claim_id"], "review_reasons": state["review_reasons"]})
+        review = ReviewDecision.model_validate(raw)
+        payout_out = state.get("payout")
+        if review.action == "deny":
+            decision, amount = Decision.DENIED, None
+        elif review.action == "override":
+            decision, amount = Decision.APPROVED, review.payout_amount
+        else:
+            if payout_out is None:
+                raise ValueError("approve needs a computed payout; use override with an amount")
+            decision, amount = Decision.APPROVED, payout_out.result.payout
+        await set_core_status(state, decision.value, f"{review.adjuster}: {review.reason or ''}")
+        return {"review": review, "decision": decision, "final_payout": amount}
+
+    async def auto_approve(state: ClaimState) -> dict[str, Any]:
+        await set_core_status(state, "auto_approved")
+        return {"decision": Decision.AUTO_APPROVED, "final_payout": state["payout"].result.payout}
+
+    async def letter(state: ClaimState) -> dict[str, Any]:
+        i, cov, dec = state["intake"], state.get("coverage"), state["decision"]
+        review = state.get("review")
+        if dec is Decision.DENIED:
+            reason = review.reason
+        elif review and review.action == "override":
+            reason = f"Approved after adjuster review. {review.reason}"
+        else:
+            part = cov.coverage_part.value if cov else "physical damage"
+            reason = f"The loss is covered under your {part} coverage."
+        payout_out = state.get("payout")
+        record = LetterInput(
+            decision=dec,
+            claimant_name=i.policy.holder_name,
+            claim_number=state["core_claim_id"],
+            incident_date=i.facts.incident_date.isoformat(),
+            claim_type=i.facts.claim_type.value,
+            citations=cov.citations if cov else [],
+            reason=reason,
+            payout=state.get("final_payout") if dec is not Decision.DENIED else None,
+            deductible=payout_out.result.deductible_applied
+            if payout_out and dec is not Decision.DENIED
+            else None,
         )
-        return {"review_reasons": reasons, "status": status}
+        out = await letter_graph.ainvoke({"record": record})
+        return {"letter": out["letter"]}
+
+    async def close(state: ClaimState) -> dict[str, Any]:
+        await set_core_status(state, "closed")
+        return {"status": ClaimStatus.CLOSED}
 
     g = StateGraph(ClaimState)
     for name, fn in [
         ("intake", intake),
         ("register_core", register_core),
         ("coverage", coverage),
+        ("fraud", fraud),
         ("payout", payout),
         ("gate", gate),
+        ("human_review", human_review),
+        ("auto_approve", auto_approve),
+        ("letter", letter),
+        ("close", close),
     ]:
         g.add_node(name, fn)
     g.add_edge(START, "intake")
@@ -194,15 +308,26 @@ def build_claim_graph(
         lambda s: END if s["status"] is ClaimStatus.INVALID else "register_core",
         ["register_core", END],
     )
-    g.add_edge("register_core", "coverage")
+    g.add_edge("register_core", "coverage")  # coverage and fraud run in parallel
+    g.add_edge("register_core", "fraud")
+    g.add_node("after_checks", lambda s: {})  # join point
+    g.add_edge(["coverage", "fraud"], "after_checks")
     g.add_conditional_edges(
-        "coverage",
+        "after_checks",
         lambda s: "payout" if s["coverage"].decision is CoverageDecision.COVERED else "gate",
         ["payout", "gate"],
     )
     g.add_edge("payout", "gate")
-    g.add_edge("gate", END)
-    return g.compile(name="claim")
+    g.add_conditional_edges(
+        "gate",
+        lambda s: "human_review" if s["review_reasons"] else "auto_approve",
+        ["human_review", "auto_approve"],
+    )
+    g.add_edge("human_review", "letter")
+    g.add_edge("auto_approve", "letter")
+    g.add_edge("letter", "close")
+    g.add_edge("close", END)
+    return g.compile(name="claim", checkpointer=checkpointer)
 
 
 def prepare_photos(
@@ -218,48 +343,82 @@ def prepare_photos(
     return stored, errors
 
 
-async def run_claim(
-    form: ClaimForm,
-    photos: list[tuple[str, bytes]],
-    llm: LLMClient,
-    tools: ToolClient,
-    sessionmaker: async_sessionmaker[AsyncSession],
-    claim_id: str | None = None,
-) -> ClaimRun:
-    settings = get_settings()
-    claim_id = claim_id or f"clm_{uuid.uuid4().hex[:12]}"
-    stored, upload_errors = prepare_photos(photos, claim_id, settings)
-    graph = build_claim_graph(llm, tools, sessionmaker)
-    state: ClaimState = {}
-    error = None
-    initial: ClaimState = {
-        "claim_id": claim_id,
-        "form": form,
-        "photos": stored,
-        "upload_errors": upload_errors,
-    }
-    with run_context(claim_id):
-        try:
-            async for snapshot in graph.astream(initial, stream_mode="values"):
-                state = snapshot  # keep the latest state so a failure keeps partial results
-        except Exception as exc:  # terminal failure after node-level retries
-            error = f"{type(exc).__name__}: {exc}"
-            if core_id := state.get("core_claim_id"):
-                with contextlib.suppress(Exception):  # best effort; the failure is the headline
-                    await tools.call(
-                        "update_claim_status",
-                        CoreClaim,
-                        core_claim_id=core_id,
-                        status="failed",
-                        note=error[:500],
-                    )
-    return ClaimRun(
-        claim_id=claim_id,
-        status=ClaimStatus.FAILED if error else state["status"],
-        core_claim_id=state.get("core_claim_id"),
-        intake=state.get("intake"),
-        coverage=state.get("coverage"),
-        payout=state.get("payout"),
-        review_reasons=state.get("review_reasons", []),
-        error=error,
-    )
+class ClaimService:
+    """Start, resume and inspect claim runs. One instance per process (API, CLI, tests)."""
+
+    def __init__(
+        self,
+        llm: LLMClient,
+        tools: ToolClient,
+        sessionmaker: async_sessionmaker[AsyncSession],
+        checkpointer: BaseCheckpointSaver,
+    ) -> None:
+        self.settings = get_settings()
+        self.tools = tools
+        self.graph = build_claim_graph(llm, tools, sessionmaker, checkpointer)
+
+    @staticmethod
+    def _config(claim_id: str) -> dict[str, Any]:
+        return {"configurable": {"thread_id": claim_id}}
+
+    async def start(
+        self, form: ClaimForm, photos: list[tuple[str, bytes]], claim_id: str | None = None
+    ) -> ClaimRun:
+        claim_id = claim_id or f"clm_{uuid.uuid4().hex[:12]}"
+        stored, upload_errors = prepare_photos(photos, claim_id, self.settings)
+        initial: ClaimState = {
+            "claim_id": claim_id,
+            "form": form,
+            "photos": stored,
+            "upload_errors": upload_errors,
+        }
+        return await self._drive(claim_id, initial)
+
+    async def resume(self, claim_id: str, review: ReviewDecision) -> ClaimRun:
+        current = await self.get(claim_id)
+        if current.status is not ClaimStatus.PENDING_REVIEW:
+            raise ValueError(f"claim {claim_id} is {current.status.value}, not pending_review")
+        return await self._drive(claim_id, Command(resume=review.model_dump()))
+
+    async def get(self, claim_id: str) -> ClaimRun:
+        snap = await self.graph.aget_state(self._config(claim_id))
+        if not snap.values:
+            raise KeyError(claim_id)
+        return self._to_run(claim_id, snap.values)
+
+    async def _drive(self, claim_id: str, graph_input: Any) -> ClaimRun:
+        error = None
+        with run_context(claim_id):
+            try:
+                await self.graph.ainvoke(graph_input, self._config(claim_id))
+            except Exception as exc:  # terminal failure after retries
+                error = f"{type(exc).__name__}: {exc}"
+        state = (await self.graph.aget_state(self._config(claim_id))).values
+        if error and (core_id := state.get("core_claim_id")):
+            with contextlib.suppress(Exception):  # best effort; the failure is the headline
+                await self.tools.call(
+                    "update_claim_status",
+                    CoreClaim,
+                    core_claim_id=core_id,
+                    status="failed",
+                    note=error[:500],
+                )
+        return self._to_run(claim_id, state, error)
+
+    @staticmethod
+    def _to_run(claim_id: str, state: dict[str, Any], error: str | None = None) -> ClaimRun:
+        return ClaimRun(
+            claim_id=claim_id,
+            status=ClaimStatus.FAILED if error else state.get("status", ClaimStatus.PROCESSING),
+            decision=state.get("decision"),
+            final_payout=state.get("final_payout"),
+            core_claim_id=state.get("core_claim_id"),
+            intake=state.get("intake"),
+            coverage=state.get("coverage"),
+            fraud=state.get("fraud"),
+            payout=state.get("payout"),
+            review_reasons=state.get("review_reasons", []),
+            review=state.get("review"),
+            letter=state.get("letter"),
+            error=error,
+        )

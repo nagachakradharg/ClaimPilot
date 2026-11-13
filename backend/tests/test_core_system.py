@@ -18,7 +18,7 @@ def _client(app):
 
 
 async def test_legacy_claim_lifecycle_and_idempotency():
-    async with _client(create_core_app(fault_rate=0)) as c:
+    async with _client(create_core_app(fault_rate=0, claims_file=None)) as c:
         first = (await c.post("/api/v1/claims", json=CLAIM)).json()
         again = (await c.post("/api/v1/claims", json=CLAIM)).json()
         assert first["CLAIM_NO"] == again["CLAIM_NO"]  # same EXT_REF -> same record
@@ -31,7 +31,7 @@ async def test_legacy_claim_lifecycle_and_idempotency():
 
 async def test_mcp_layer_retries_injected_503s(monkeypatch):
     """Fault injection: a flaky core system still succeeds through the retry layer."""
-    flaky = create_core_app(fault_rate=0, fail_first=2)  # 2 x 503, then healthy
+    flaky = create_core_app(fault_rate=0, fail_first=2, claims_file=None)  # 2 x 503, then healthy
     monkeypatch.setattr(mcp_server, "_core_http", lambda: _client(flaky))
     monkeypatch.setattr(mcp_server.asyncio, "sleep", _no_sleep)
     first = await mcp_server._core("POST", "/api/v1/claims", json=CLAIM)
@@ -40,7 +40,7 @@ async def test_mcp_layer_retries_injected_503s(monkeypatch):
 
 
 async def test_mcp_layer_gives_up_when_core_is_down(monkeypatch):
-    down = create_core_app(fault_rate=1.0)
+    down = create_core_app(fault_rate=1.0, claims_file=None)
     monkeypatch.setattr(mcp_server, "_core_http", lambda: _client(down))
     monkeypatch.setattr(mcp_server.asyncio, "sleep", _no_sleep)
     with pytest.raises(mcp_server.ToolError, match="unavailable"):

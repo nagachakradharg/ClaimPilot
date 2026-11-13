@@ -1,0 +1,12 @@
+{
+  "input_tokens": 413,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_reviewer",
+  "output": {
+    "approved": false,
+    "issues": [
+      "The letter includes a direct quote of the policy clause [COLL-1] which may not be in plain language for a general claimant letter."
+    ]
+  },
+  "output_tokens": 50
+}

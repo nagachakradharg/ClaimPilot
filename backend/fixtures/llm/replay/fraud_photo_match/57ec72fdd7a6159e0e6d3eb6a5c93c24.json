@@ -1,0 +1,18 @@
+{
+  "input_tokens": 724,
+  "model": "ollama:gemma4:12b",
+  "node": "fraud_photo_match",
+  "output": {
+    "mismatches": [],
+    "observations": [
+      "Rear-end impact damage on a light blue vehicle.",
+      "The rear bumper is significantly crushed and pushed inward.",
+      "The rear bumper cover is partially detached and hanging off the vehicle.",
+      "The trunk lid/tailgate area shows deformation and misalignment.",
+      "The rear passenger-side taillight assembly is damaged/cracked.",
+      "Debris from the bumper is visible on the ground."
+    ],
+    "risk": 0.0
+  },
+  "output_tokens": 116
+}

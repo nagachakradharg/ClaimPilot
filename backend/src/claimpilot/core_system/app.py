@@ -20,9 +20,13 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from claimpilot.config import DATA_DIR
+from claimpilot.config import DATA_DIR, REPO_DIR
 
 VALUATIONS_FILE = DATA_DIR / "core_system" / "valuations.json"
+# The system of record persists its claims (runtime data, git-ignored under storage/).
+CLAIMS_FILE = Path(
+    os.getenv("CORE_CLAIMS_FILE", REPO_DIR / "storage" / "core_system" / "claims.json")
+)
 STATUS_CODES = {"OPEN", "PROC", "PEND_REV", "AUTO_APPRVD", "APPRVD", "DENIED", "CLOSED", "FAILED"}
 LOSS_TYPE_CODES = {"COLL", "THFT", "GLSS", "WTHR", "OTHR"}
 
@@ -46,13 +50,25 @@ def _load_valuations(path: Path) -> dict[str, dict]:
 
 
 def create_core_app(
-    fault_rate: float | None = None, seed: int | None = None, fail_first: int = 0
+    fault_rate: float | None = None,
+    seed: int | None = None,
+    fail_first: int = 0,
+    claims_file: Path | None = CLAIMS_FILE,
 ) -> FastAPI:
+    """`claims_file=None` keeps claims in memory only (tests)."""
     app = FastAPI(title="Core Claims System (mock legacy)", version="7.4-mock")
     rng = random.Random(seed)
     rate = float(os.getenv("CORE_FAULT_RATE", "0")) if fault_rate is None else fault_rate
-    claims: dict[str, dict] = {}
-    seq = count(1)
+    claims: dict[str, dict] = (
+        json.loads(claims_file.read_text()) if claims_file and claims_file.exists() else {}
+    )
+    seq = count(len(claims) + 1)
+
+    def persist() -> None:
+        if claims_file:
+            claims_file.parent.mkdir(parents=True, exist_ok=True)
+            claims_file.write_text(json.dumps(claims, indent=1))
+
     pending_failures = [fail_first]  # deterministic faults for tests
     valuations = _load_valuations(VALUATIONS_FILE)
 
@@ -96,6 +112,7 @@ def create_core_app(
             "HIST": [],
         }
         claims[claim_no] = rec
+        persist()
         return rec
 
     @app.get("/api/v1/claims/{claim_no}")
@@ -120,6 +137,7 @@ def create_core_app(
             }
         )
         rec["STATUS_CD"] = body.STATUS_CD
+        persist()
         return rec
 
     @app.get("/health")

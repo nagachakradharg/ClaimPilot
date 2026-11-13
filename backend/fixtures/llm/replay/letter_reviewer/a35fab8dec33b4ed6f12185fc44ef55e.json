@@ -1,0 +1,11 @@
+{
+  "input_tokens": 492,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_reviewer",
+  "output": {
+    "approved": true,
+    "issues": [],
+    "reasoning": "The letter accurately reflects the decision, the reason, the specific policy clause quoted word-for-word, the next steps, and includes a contact line."
+  },
+  "output_tokens": 58
+}

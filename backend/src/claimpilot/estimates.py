@@ -20,6 +20,9 @@ PRICE_BOOK: list[tuple[str, str, float, float]] = [
     ("roof", "Roof skin / PDR", 900.0, 8.0),
     ("trunk", "Trunk lid", 600.0, 4.0),
     ("headlight", "Headlamp assembly", 480.0, 1.0),
+    ("taillight", "Tail lamp assembly", 260.0, 0.8),
+    ("tail light", "Tail lamp assembly", 260.0, 0.8),
+    ("mirror", "Side mirror assembly", 220.0, 1.0),
     ("grille", "Grille", 260.0, 1.0),
     ("radiator", "Radiator + coolant", 520.0, 2.5),
     ("tire", "Tire", 190.0, 0.5),
@@ -71,10 +74,14 @@ def estimate_repairs(
     factor = SEVERITY_FACTOR.get(severity, 1.0) * CLASS_FACTOR.get(vehicle_category.lower(), 1.0)
     if make in LUXURY_MAKES:
         factor *= 1.3
-    priced, unpriced = [], []
+    priced, unpriced, seen_parts = [], [], set()
     for area in damage_areas:
         p = _price(area)
-        (priced if p else unpriced).append((area, p))
+        if p is None:
+            unpriced.append((area, p))
+        elif p[0] not in seen_parts:  # "rear bumper" + "rear bumper cover" = one bumper
+            seen_parts.add(p[0])
+            priced.append((area, p))
     quotes = []
     for shop, shop_factor in SHOPS:
         items = [

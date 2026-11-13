@@ -1,0 +1,7 @@
+{
+  "input_tokens": 577,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_writer",
+  "output": "Subject: Claim Decision Regarding {CLAIM_NUMBER}\n\nDear {CLAIMANT_NAME},\n\nWe have completed the review of your claim, {CLAIM_NUMBER}, regarding the glass damage reported on 2026-04-12. We are pleased to inform you that your claim has been approved.\n\nThis loss is covered under your comprehensive coverage. According to your policy, [COMP-1] \"We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations.\" Additionally, [COMP-2] \"Repair of a windshield chip without replacement is paid with no deductible.\"\n\nRegarding the next steps, payment of {PAYOUT} will be issued within 5 business days. Please note that a {DEDUCTIBLE} has been applied to this claim.\n\nIf you have any questions regarding this decision, please contact us directly.\n\nSincerely,\n\nClaimPilot Claims Team",
+  "output_tokens": 194
+}

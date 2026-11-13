@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     # Ollama only: thinking control for reasoning models. Unset = model default;
     # "false" turns thinking off; "low" | "medium" | "high" set effort where supported (gpt-oss).
     llm_reasoning: str | None = "false"
+    llm_num_predict: int = 2048  # Ollama max output tokens: a runaway generation fails fast
     llm_num_ctx: int = 8192  # Ollama context window (its default of 4096 is tight with photos)
     llm_timeout_s: float = 120.0
     llm_max_retries: int = 2

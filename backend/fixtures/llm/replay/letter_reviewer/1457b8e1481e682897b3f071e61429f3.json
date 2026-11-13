@@ -1,0 +1,12 @@
+{
+  "input_tokens": 405,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_reviewer",
+  "output": {
+    "approved": false,
+    "issues": [
+      "The letter includes a promise of a 'separate communication regarding the disbursement of funds' which is not supported by the decision record."
+    ]
+  },
+  "output_tokens": 47
+}

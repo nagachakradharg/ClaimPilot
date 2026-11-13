@@ -1,3 +1,9 @@
+import os
+import tempfile
+
+# Tests never touch the real core-system claims file (set before claimpilot imports).
+os.environ["CORE_CLAIMS_FILE"] = os.path.join(tempfile.mkdtemp(), "core_claims.json")
+
 import pytest
 
 from claimpilot.config import LLMMode, Settings, get_settings

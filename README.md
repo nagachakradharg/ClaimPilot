@@ -9,10 +9,12 @@ Multi-agent processing for personal **auto** insurance claims: intake with visio
 - Data and licenses: [docs/data-sources.md](docs/data-sources.md)
 
 ## Status
-**Week 2.** Done: weeks 0–1 (foundation, coverage RAG + eval) plus intake (validation, photo resizing, vision extraction), an MCP server with 6 tools in front of a mock legacy core claims system, deterministic payout, and a parent graph that runs a claim end to end from the CLI:
+**Week 3.** Done: weeks 0–2 plus fraud investigation (3 parallel checks), coverage and fraud in parallel, a single human review gate that pauses and resumes from Postgres checkpoints (survives restarts), and decision letters (writer → reviewer → one revision, amounts filled in by code). Run a claim from the CLI:
 
 ```bash
-cd backend && uv run python -m claimpilot.cli ../data/claims/demo-001/form.json ../data/claims/demo-001/rear.jpg
+cd backend
+uv run python -m claimpilot.cli submit ../data/claims/demo-001/form.json ../data/photos/collision-rear-quarter.jpg
+uv run python -m claimpilot.cli review <claim_id> approve      # or: deny --reason "..."
 ```
 
 ## Quick start (local)

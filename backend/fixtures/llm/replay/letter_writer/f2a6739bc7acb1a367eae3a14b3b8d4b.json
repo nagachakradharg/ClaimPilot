@@ -1,0 +1,7 @@
+{
+  "input_tokens": 603,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_writer",
+  "output": "Subject: Claim Decision for {CLAIM_NUMBER}\n\nDear {CLAIMANT_NAME},\n\nWe have completed the review of your claim regarding the collision that occurred on 2026-03-04. We are pleased to inform you that your claim for {CLAIM_NUMBER} has been approved.\n\nThe loss is covered under your collision coverage. Your policy states that we provide coverage for direct and accidental loss to your covered auto caused by a collision, which includes the upset of your vehicle or its impact with another vehicle or object, such as a pole, guardrail, or building.\n\nThe total payment for this claim is {PAYOUT}, and a {DEDUCTIBLE} has been applied.\n\nWhat happens next? We will issue the payment to the designated payee shortly. You will receive a separate communication regarding the disbursement of funds.\n\nIf you have any questions regarding this decision, please contact our claims department.\n\nSincerely,\n\nClaimPilot Claims Team",
+  "output_tokens": 198
+}

@@ -1,0 +1,12 @@
+{
+  "input_tokens": 458,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_reviewer",
+  "output": {
+    "approved": false,
+    "issues": [
+      "The letter states the payment will be issued 'less your {DEDUCTIBLE}', but the decision record states the payout is {PAYOUT} and the deductible is {DEDUCTIBLE} (implying the {PAYOUT} amount is the net amount after the deductible has already been applied)."
+    ]
+  },
+  "output_tokens": 85
+}

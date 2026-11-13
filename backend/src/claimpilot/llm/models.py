@@ -29,6 +29,7 @@ def build_chat_model(spec: str) -> BaseChatModel:
         kwargs["max_retries"] = 0
     if provider == "ollama":
         kwargs["num_ctx"] = settings.llm_num_ctx
+        kwargs["num_predict"] = settings.llm_num_predict
         if settings.llm_reasoning is not None:
             r = settings.llm_reasoning.lower()
             kwargs["reasoning"] = {"true": True, "false": False}.get(r, r)

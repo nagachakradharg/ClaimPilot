@@ -1,0 +1,216 @@
+{
+  "suite": "letters",
+  "timestamp": "2026-11-26T20:44:31+00:00",
+  "llm_mode": "record",
+  "model": "ollama:gemma4:12b",
+  "summary": {
+    "n": 12,
+    "errors": 0,
+    "decision": 1.0,
+    "amount": 0.917,
+    "no_leak": 1.0,
+    "deductible_wording": 1.0,
+    "quotes_clause": 1.0,
+    "flagged_for_edit": 0.083,
+    "sendable": 11,
+    "sendable_all_checks": 0.909,
+    "avg_revisions": 0.75,
+    "writer_p50_ms": 8574.3
+  },
+  "cases": [
+    {
+      "id": "let-01",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 1,
+      "needs_adjuster_edit": true,
+      "issues": [
+        "The letter states the payment will be issued 'less your {DEDUCTIBLE}', but the decision record states the payout is {PAYOUT} and the deductible is {DEDUCTIBLE} (implying the {PAYOUT} amount is the net amount after the deductible has already been applied)."
+      ],
+      "subject": "Claim Decision Regarding CCS-2026-000901",
+      "body": "Dear Jordan Patel,\n\nWe have completed the review of your claim, CCS-2026-000901, regarding the collision that occurred on 2026-04-12. We are pleased to inform you that your claim has been approved.\n\nThe loss is covered under your collision coverage. According to your policy, [COLL-1] \"We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations.\"\n\nAs a result of this approval, the payment of $1,781.60 will be issued, less your $400.00.\n\nNext steps: Payment of $1,781.60 will be issued within 5 business days.\n\nIf you have any questions regarding this decision, please contact us at our claims department.\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-02",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 1,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding CCS-2026-000902",
+      "body": "Dear Jordan Patel,\n\nWe have completed the review of your claim regarding the weather-related incident on 2026-04-12. We are pleased to inform you that your claim for CCS-2026-000902 has been approved.\n\nThe loss is covered under your comprehensive coverage. According to your policy, [COMP-1] \"We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations.\"\n\nAs a result of this approval, the payment of $2,915.25 will be issued.\n\nNext steps: Payment of $2,915.25 will be issued within 5 business days.\n\nIf you have any questions regarding this decision, please contact our claims department.\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-03",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": false,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 1,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding CCS-2026-000903",
+      "body": "Dear Jordan Patel,\n\nWe have completed the review of your claim, CCS-2026-000903, regarding the glass damage reported on 2026-04-12. We are pleased to inform you that your claim has been approved.\n\nThis loss is covered under your comprehensive coverage. According to your policy, [COMP-1] \"We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations.\" Additionally, [COMP-2] \"Repair of a windshield chip without replacement is paid with no deductible.\"\n\nRegarding the next steps, payment of $71.00 will be issued within 5 business days. Please note that a $0.00 has been applied to this claim.\n\nIf you have any questions regarding this decision, please contact us directly.\n\nSincerely,\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-04",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 1,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding CCS-2026-000904",
+      "body": "Dear Jordan Patel,\n\nWe have completed the review of your claim regarding the collision that occurred on 2026-04-12. We are pleased to inform you that your claim for CCS-2026-000904 has been approved.\n\nThe loss is covered under your collision coverage. Specifically, your policy includes the following provision: \"[COLL-1] We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations.\"\n\nAs a result of this approval, the payment of $17,600.00 will be issued, with a $500.00 applied.\n\nRegarding the next steps, payment of $17,600.00 will be issued within 5 business days.\n\nIf you have any questions regarding this decision, please contact us using the information provided in your claim file.\n\nSincerely,\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-05",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 1,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding CCS-2026-000905",
+      "body": "Dear Jordan Patel,\n\nWe have completed the review of your claim, CCS-2026-000905, regarding the theft that occurred on 2026-04-12. We are pleased to inform you that your claim has been approved.\n\nThe loss is covered under your comprehensive coverage. According to your policy, [COMP-1] \"We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations.\"\n\nAs a result of this approval, the payment of $21,400.00 will be issued, less your $250.00.\n\nNext steps: Payment of $21,400.00 will be issued within 5 business days.\n\nIf you have any questions regarding this decision, please contact us at our claims department.\n\nSincerely,\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-06",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 1,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding CCS-2026-000906",
+      "body": "Dear Jordan Patel,\n\nWe have completed the review of your collision claim, CCS-2026-000906, regarding the incident on 2026-04-12. We are pleased to inform you that your claim has been approved.\n\nThis decision was reached following an adjuster review and an independent shop quote. Your policy includes the following coverage: \"[COLL-1] We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations.\"\n\nBased on this coverage, your total payment will be $3,250.00 after the application of your $400.00.\n\nAs a next step, payment of $3,250.00 will be issued within 5 business days.\n\nIf you have any questions regarding this decision, please contact us at our claims department.\n\nSincerely,\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-07",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 1,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding CCS-2026-000907",
+      "body": "Dear Jordan Patel,\n\nWe have completed the review of your claim, CCS-2026-000907, regarding the collision that occurred on 2026-04-12. We are pleased to inform you that your claim has been approved.\n\nThe loss is covered under your collision coverage. According to your policy, [COLL-1] \"We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations.\"\n\nAs a result of this approval, the payment of $6,480.10 will be issued, less your $1,000.00.\n\nNext steps: Payment of $6,480.10 will be issued within 5 business days.\n\nIf you have any questions regarding this decision, please contact our claims department.\n\nSincerely,\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-08",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 0,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding Your Collision Coverage",
+      "body": "Dear Jordan Patel,\n\nWe have completed our review of your claim, CCS-2026-000908, regarding the collision that occurred on 2026-04-12. At this time, we are unable to provide coverage for this loss.\n\nOur decision is based on the following policy provision: [EXC-2] \"We will not pay for loss to your covered auto while it is being used to carry persons or property for a fee, including while the driver is logged in to a transportation network or delivery platform.\" Our records indicate that the vehicle was being used for paid deliveries while logged into a delivery app at the time of the incident.\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any questions regarding this letter.\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-09",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 0,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding Your Recent Inquiry",
+      "body": "Dear Jordan Patel,\n\nWe have completed our review of your claim, CCS-2026-000909, regarding the incident on 2026-04-12. At this time, we are unable to provide coverage for this claim.\n\nOur review determined that the damage is limited to a mechanical breakdown of the engine, with no collision or other covered event occurring. Your policy includes the following exclusion:\n\n\"[EXC-1] We will not pay for loss due to and confined to wear and tear, freezing, mechanical or electrical breakdown or failure, or road damage to tires, unless the damage results from the total theft of your covered auto.\"\n\nBecause the damage falls under this specific exclusion, it is not a covered peril under your current policy.\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any further questions.\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-10",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 0,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding CCS-2026-000910",
+      "body": "Dear Jordan Patel,\n\nWe have completed our review of your collision claim regarding the incident on 2026-04-12. At this time, we are unable to provide coverage for this claim.\n\nOur decision is based on the fact that the policy was cancelled before the date of the incident. According to the policy terms: \"[GEN-1] This policy applies only to accidents and losses that occur during the policy period shown in the Declarations and within the United States, its territories or possessions, or Canada.\" Because the incident occurred outside of the active policy period, it is not covered.\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any further questions.\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-11",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 1,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding CCS-2026-000911",
+      "body": "Dear Jordan Patel,\n\nWe have completed our review of your claim, CCS-2026-000911, regarding the theft that occurred on 2026-04-12. At this time, we are unable to approve your request for coverage.\n\nThis decision was reached because your current policy provides liability coverage only and does not cover damage to or theft of your own vehicle. Specifically, policy clause [LIAB-2] states: \"This policy provides liability coverage only.\"\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nIf you have any questions, please contact us directly.\n\nClaimPilot Claims Team"
+    },
+    {
+      "id": "let-12",
+      "error": false,
+      "checks": {
+        "decision": true,
+        "amount": true,
+        "no_leak": true,
+        "deductible_wording": true,
+        "quotes_clause": true
+      },
+      "revisions": 1,
+      "needs_adjuster_edit": false,
+      "issues": [],
+      "subject": "Claim Decision Regarding Your Collision Coverage",
+      "body": "Dear Jordan Patel,\n\nWe have completed our review of your claim, CCS-2026-000912, regarding the collision that occurred on 2026-04-12. At this time, we are unable to approve your request for coverage.\n\nOur review determined that the photos provided show a different vehicle than the one listed on your policy. Consequently, the reported damage could not be verified. Your policy includes the following provision:\n\n[COLL-1] \"We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations.\"\n\nBecause the evidence provided does not align with your insured vehicle, we are denying this claim.\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any questions regarding this decision.\n\nClaimPilot Claims Team"
+    }
+  ]
+}

@@ -70,3 +70,9 @@ def test_estimates_scale_with_severity_class_and_luxury():
 
 def test_chip_only_detection():
     assert estimate_repairs(["windshield chip"], "low", "Sedan", "Honda").chip_repair_only
+
+
+def test_same_part_listed_twice_is_priced_once():
+    once = estimate_repairs(["rear bumper"], "medium", "Sedan", "Honda").lowest_total
+    twice = estimate_repairs(["rear bumper", "rear bumper cover"], "medium", "Sedan", "Honda")
+    assert twice.lowest_total == once and len(twice.quotes[0].line_items) == 1
