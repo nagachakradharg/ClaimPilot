@@ -78,6 +78,16 @@ class Settings(BaseSettings):
     photo_storage_dir: Path = REPO_DIR / "storage" / "photos"
     total_loss_threshold: float = 0.75
 
+    # Dev default only; set a long random JWT_SECRET in any shared or cloud environment.
+    jwt_secret: str = "dev-only-change-me-0123456789abcdef0123456789abcdef"
+    jwt_ttl_minutes: int = 120
+
+    # USD per 1M tokens per "provider:model", e.g. {"openai:<model>": [0.15, 0.60]}.
+    # Unlisted models (incl. local Ollama) cost 0.
+    model_prices: dict[str, list[float]] = Field(default_factory=dict)
+
+    manual_handling_minutes: float = 45.0  # stated assumption, shown on the dashboard
+
     cors_origins: list[str] = ["http://localhost:5173"]
 
     def model_for(self, node: str) -> str:

@@ -15,6 +15,12 @@ from claimpilot.models import Base  # noqa: E402
 
 target_metadata = Base.metadata
 
+
+def include_object(obj, name, type_, reflected, compare_to):
+    # LangGraph owns its checkpoint_* tables (created by the checkpointer's setup()).
+    return not (type_ == "table" and name.startswith("checkpoint"))
+
+
 from claimpilot.config import get_settings  # noqa: E402
 
 config.set_main_option("sqlalchemy.url", get_settings().database_url)
@@ -26,6 +32,7 @@ def run_migrations_offline() -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
+        include_object=include_object,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )

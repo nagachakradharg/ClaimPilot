@@ -9,13 +9,21 @@ Multi-agent processing for personal **auto** insurance claims: intake with visio
 - Data and licenses: [docs/data-sources.md](docs/data-sources.md)
 
 ## Status
-**Week 3.** Done: weeks 0–2 plus fraud investigation (3 parallel checks), coverage and fraud in parallel, a single human review gate that pauses and resumes from Postgres checkpoints (survives restarts), and decision letters (writer → reviewer → one revision, amounts filled in by code). Run a claim from the CLI:
+**Week 4.** Done: weeks 0–3 plus the API: JWT login for 3 seeded roles, role-scoped claim endpoints, adjuster review actions, live progress over SSE (with history replay), a PII-redacted audit trail of every step, model call, tool call and human decision, and an impact-metrics endpoint. Next: the React UI (week 5).
 
-```bash
-cd backend
-uv run python -m claimpilot.cli submit ../data/claims/demo-001/form.json ../data/photos/collision-rear-quarter.jpg
-uv run python -m claimpilot.cli review <claim_id> approve      # or: deny --reason "..."
-```
+### Demo users (synthetic)
+| Role | Email | Can |
+|---|---|---|
+| Claimant | `casey.fofana@example.com` (policy CP-100003) | submit claims, see own status and letter |
+| Adjuster | `adjuster@claimpilot.example` | review queue, approve / deny / override, audit, metrics |
+| Auditor | `auditor@claimpilot.example` | read-only: all claims, audit, metrics |
+
+Password for all: `claimpilot-demo` (set `DEMO_PASSWORD` for any shared deployment).
+
+### API
+`/auth/login`, `/auth/me`, `POST /claims` (multipart: `form` JSON + `photos`), `GET /claims`, `GET /claims/{id}`, `POST /claims/{id}/review`, `GET /claims/{id}/events` (SSE), `GET /claims/{id}/audit`, `GET /metrics`. Interactive docs: http://localhost:8000/docs
+
+The CLI still works for quick runs: `uv run python -m claimpilot.cli submit|review|show`.
 
 ## Quick start (local)
 Prerequisites: [uv](https://docs.astral.sh/uv/) and a Docker runtime.

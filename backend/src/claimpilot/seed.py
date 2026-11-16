@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import csv
 import json
+import os
 import random
 from dataclasses import dataclass
 from datetime import date
@@ -21,12 +22,16 @@ from sqlalchemy import delete
 
 from claimpilot.config import DATA_DIR
 from claimpilot.db import get_sessionmaker
-from claimpilot.models import ClaimHistoryProfile, Policy
+from claimpilot.models import AuditEvent, ClaimHistoryProfile, ClaimRecord, Policy, User
 from claimpilot.rag import ingest_policy_form
 
 KAGGLE_CSV = DATA_DIR / "raw" / "fraud_oracle.csv"
 POLICY_FORMS_DIR = DATA_DIR / "policies"
 N_POLICIES = 24
+# Demo-only password for the seeded users (synthetic data, local/demo use). Override with
+# DEMO_PASSWORD for any shared deployment.
+DEMO_PASSWORD = os.getenv("DEMO_PASSWORD", "claimpilot-demo")
+CLAIMANT_POLICIES = ["CP-100003", "CP-100005"]
 LIABILITY_ONLY = {"CP-100019", "CP-100020", "CP-100021", "CP-100022"}
 CANCELLED = {"CP-100023"}
 EXPIRED = {"CP-100024"}
@@ -234,6 +239,26 @@ def build_policies(
     return out
 
 
+def build_users(policies: list[Policy]) -> list[User]:
+    """Seeded users for the 3 roles. No signup in v1."""
+    from claimpilot.auth import hasher
+
+    pw = hasher.hash(DEMO_PASSWORD)
+    by_number = {p.policy_number: p for p in policies}
+    users = [
+        User(email=by_number[n].holder_email, name=by_number[n].holder_name, role="claimant",
+             password_hash=pw, policy_number=n)
+        for n in CLAIMANT_POLICIES
+    ]  # fmt: skip
+    users += [
+        User(email="adjuster@claimpilot.example", name="Alex Adjuster", role="adjuster",
+             password_hash=pw),
+        User(email="auditor@claimpilot.example", name="Ari Auditor", role="auditor",
+             password_hash=pw),
+    ]  # fmt: skip
+    return users
+
+
 def export_core_valuations(policies: list[Policy]) -> None:
     """The mock core system gets its own vehicle-valuation extract (it never reads our DB)."""
     from claimpilot.core_system.app import VALUATIONS_FILE
@@ -254,16 +279,25 @@ async def seed() -> dict[str, int | str]:
     export_core_valuations([p for p, _ in built])
 
     async with get_sessionmaker()() as session, session.begin():
+        await session.execute(delete(AuditEvent))
+        await session.execute(delete(ClaimRecord))
+        await session.execute(delete(User))
         await session.execute(delete(ClaimHistoryProfile))
         await session.execute(delete(Policy))
         for policy, history in built:
             session.add(policy)
             await session.flush()
             session.add(history)
+        session.add_all(build_users([p for p, _ in built]))
         n_clauses = 0
         for path in sorted(POLICY_FORMS_DIR.glob("*.md")):
             n_clauses += len(await ingest_policy_form(session, path))
-    return {"policies": N_POLICIES, "clauses": n_clauses, "history_source": source}
+    return {
+        "policies": N_POLICIES,
+        "clauses": n_clauses,
+        "users": len(CLAIMANT_POLICIES) + 2,
+        "history_source": source,
+    }
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import contextlib
 import uuid
+from collections.abc import Callable
 from enum import StrEnum
 from typing import Any, Literal, TypedDict
 
@@ -352,10 +353,16 @@ class ClaimService:
         tools: ToolClient,
         sessionmaker: async_sessionmaker[AsyncSession],
         checkpointer: BaseCheckpointSaver,
+        on_graph: Callable[[str, tuple[str, ...], dict[str, Any]], None] | None = None,
     ) -> None:
         self.settings = get_settings()
         self.tools = tools
+        self.on_graph = on_graph  # node start/finish events (audit + live progress)
         self.graph = build_claim_graph(llm, tools, sessionmaker, checkpointer)
+
+    @staticmethod
+    def new_claim_id() -> str:
+        return f"clm_{uuid.uuid4().hex[:12]}"
 
     @staticmethod
     def _config(claim_id: str) -> dict[str, Any]:
@@ -364,7 +371,7 @@ class ClaimService:
     async def start(
         self, form: ClaimForm, photos: list[tuple[str, bytes]], claim_id: str | None = None
     ) -> ClaimRun:
-        claim_id = claim_id or f"clm_{uuid.uuid4().hex[:12]}"
+        claim_id = claim_id or self.new_claim_id()
         stored, upload_errors = prepare_photos(photos, claim_id, self.settings)
         initial: ClaimState = {
             "claim_id": claim_id,
@@ -390,7 +397,11 @@ class ClaimService:
         error = None
         with run_context(claim_id):
             try:
-                await self.graph.ainvoke(graph_input, self._config(claim_id))
+                async for ns, chunk in self.graph.astream(
+                    graph_input, self._config(claim_id), stream_mode="debug", subgraphs=True
+                ):
+                    if self.on_graph:
+                        self.on_graph(claim_id, ns, chunk)
             except Exception as exc:  # terminal failure after retries
                 error = f"{type(exc).__name__}: {exc}"
         state = (await self.graph.aget_state(self._config(claim_id))).values
