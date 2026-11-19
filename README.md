@@ -9,7 +9,15 @@ Multi-agent processing for personal **auto** insurance claims: intake with visio
 - Data and licenses: [docs/data-sources.md](docs/data-sources.md)
 
 ## Status
-**Week 4.** Done: weeks 0–3 plus the API: JWT login for 3 seeded roles, role-scoped claim endpoints, adjuster review actions, live progress over SSE (with history replay), a PII-redacted audit trail of every step, model call, tool call and human decision, and an impact-metrics endpoint. Next: the React UI (week 5).
+**Week 5.** Done: weeks 0–4 plus the React UI (FR-9):
+- **Submit claim** (claimant): form + photo upload, then live step-by-step progress over SSE and the decision letter once closed.
+- **Adjuster queue**: filter by status, review-reason badges.
+- **Claim detail**: extraction with per-field confidence, coverage with quoted policy clauses, fraud checks, deterministic payout steps and shop quotes, the letter, and approve / deny / override (reason required).
+- **Trace timeline**: per-node duration bars (parallel coverage || fraud visible), the model and tool calls inside each node, tokens and cost.
+- **Impact dashboard**: straight-through rate, escalations by reason, p50/p95 processing time, cost and tokens per claim, estimated hours saved (manual-handling baseline stated on the page).
+- Persistent notice on every page: "Synthetic demo. Recommendations only; an adjuster makes final decisions."
+
+Next: cloud deploy, docs and demo video (week 6).
 
 ### Demo users (synthetic)
 | Role | Email | Can |
@@ -35,10 +43,17 @@ cd backend && uv sync && uv run alembic upgrade head && uv run python -m claimpi
 uv run uvicorn claimpilot.api.main:app --reload   # http://localhost:8000/docs
 ```
 
+UI (Node 20+), in a second terminal. Vite proxies `/api` to the backend on port 8000:
+
+```bash
+cd frontend && npm install && npm run dev   # http://localhost:5173
+```
+
 Run the tests. They need no API key or database:
 
 ```bash
 cd backend && uv run pytest
+cd frontend && npm test        # trace/progress logic (vitest)
 ```
 
 ## LLM tiers (zero-cost development)
@@ -62,6 +77,7 @@ Models are set per node as `provider:model` (`LLM_DEFAULT_MODEL`, `LLM_NODE_MODE
 ## Layout
 ```
 backend/            FastAPI + LangGraph (uv project)
+frontend/           React + TypeScript (Vite, TanStack Query, Tailwind)
   src/claimpilot/   config, llm layer, db, api
   migrations/       Alembic
   tests/

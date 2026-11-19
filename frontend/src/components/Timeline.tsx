@@ -1,0 +1,171 @@
+import type { AuditEvent } from "../lib/api";
+import { Badge, cn, when } from "./ui";
+
+// Trace timeline: per-node duration from node_start/node_end pairs, with the
+// model and tool calls that ran inside each node, plus tokens and cost.
+
+interface Span {
+  name: string;
+  depth: number;
+  start: number;
+  end: number | null; // null = still open (e.g. paused at the review gate)
+  calls: AuditEvent[];
+}
+
+const t = (iso: string) => new Date(iso).getTime();
+
+export function buildSpans(events: AuditEvent[]): Span[] {
+  const spans: Span[] = [];
+  const open = new Map<string, Span[]>();
+  for (const e of events) {
+    if (e.kind === "node_start") {
+      const s: Span = { name: e.name, depth: e.name.split("/").length - 1, start: t(e.ts), end: null, calls: [] };
+      spans.push(s);
+      open.set(e.name, [...(open.get(e.name) ?? []), s]);
+    } else if (e.kind === "node_end") {
+      const q = open.get(e.name);
+      const s = q?.shift();
+      if (s) s.end = t(e.ts);
+    }
+  }
+  // Attach each model/tool call to a span running when it started. Parallel branches
+  // overlap in time, so prefer the span whose name shares the most words with the call
+  // ("fraud_doc_consistency" -> "fraud/doc_consistency"), then the deepest.
+  const words = (s: string) => new Set(s.toLowerCase().split(/[/_]/).filter(Boolean));
+  const overlap = (a: Set<string>, b: Set<string>) => [...a].filter((w) => b.has(w)).length;
+  for (const e of events) {
+    if (e.kind !== "llm" && e.kind !== "tool") continue;
+    const ts = t(e.ts) - (e.latency_ms ?? 0); // when the call started
+    const w = words(e.name);
+    const host = spans
+      .filter((s) => s.start <= ts + 1 && (s.end == null || ts <= s.end))
+      .map((s) => ({ s, score: overlap(w, words(s.name)) }))
+      .sort((a, b) => b.score - a.score || b.s.depth - a.s.depth || b.s.start - a.s.start)[0]?.s;
+    host?.calls.push(e);
+  }
+  // Order rows as a tree: each top-level node followed by its own sub-steps, even when
+  // two subgraphs (coverage || fraud) ran at the same time.
+  const roots = spans.filter((s) => s.depth === 0);
+  const rootOf = (s: Span) =>
+    s.depth === 0
+      ? s
+      : roots.filter((r) => r.name === s.name.split("/")[0] && r.start <= s.start + 1).pop() ?? s;
+  const order = new Map(roots.map((r, i) => [r, i]));
+  return [...spans].sort(
+    (a, b) =>
+      (order.get(rootOf(a)) ?? 0) - (order.get(rootOf(b)) ?? 0) || a.depth - b.depth || a.start - b.start,
+  );
+}
+
+const fmtMs = (ms: number) => (ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`);
+
+export function Timeline({ events }: { events: AuditEvent[] }) {
+  if (events.length === 0) return <p className="text-sm text-slate-500">No events yet.</p>;
+  const spans = buildSpans(events);
+  const t0 = t(events[0].ts);
+  const tEnd = Math.max(...events.map((e) => t(e.ts)));
+  const total = Math.max(tEnd - t0, 1);
+
+  const llm = events.filter((e) => e.kind === "llm");
+  const tools = events.filter((e) => e.kind === "tool");
+  const tokens = llm.reduce((n, e) => n + (e.input_tokens ?? 0) + (e.output_tokens ?? 0), 0);
+  const cost = llm.reduce((n, e) => n + (e.cost_usd ?? 0), 0);
+  const markers = events.filter((e) => e.kind === "status" || e.kind === "human");
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        {[
+          ["Wall clock", fmtMs(total)],
+          ["Model calls", String(llm.length)],
+          ["Tokens", tokens.toLocaleString()],
+          ["Model cost", `$${cost.toFixed(4)}`],
+          ["Tool calls", String(tools.length)],
+        ].map(([k, v]) => (
+          <div key={k} className="rounded-md bg-slate-50 px-3 py-2">
+            <div className="text-xs text-slate-500">{k}</div>
+            <div className="font-semibold tabular-nums">{v}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-1">
+        {spans.map((s, i) => {
+          const end = s.end ?? tEnd;
+          const left = ((s.start - t0) / total) * 100;
+          const width = Math.max(((end - s.start) / total) * 100, 0.4);
+          return (
+            <div key={i} className="grid grid-cols-[minmax(0,14rem)_1fr] items-start gap-3 text-xs sm:grid-cols-[16rem_1fr]">
+              <div className="truncate pt-0.5 font-mono" style={{ paddingLeft: s.depth * 14 }} title={s.name}>
+                {s.name.split("/").pop()}
+                <span className="ml-1.5 text-slate-500">
+                  {s.end == null ? "waiting" : fmtMs(end - s.start)}
+                </span>
+              </div>
+              <div>
+                <div className="relative h-4 rounded bg-slate-100">
+                  <div
+                    className={cn(
+                      "absolute inset-y-0 rounded",
+                      s.end == null ? "bg-amber-400/70" : s.depth === 0 ? "bg-blue-500" : "bg-blue-300",
+                    )}
+                    style={{ left: `${left}%`, width: `${width}%` }}
+                  />
+                </div>
+                {s.calls.length > 0 && (
+                  <div className="mt-1 mb-1.5 flex flex-wrap gap-1">
+                    {s.calls.map((c, j) => (
+                      <CallChip key={j} e={c} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Status and human events</h3>
+        <ul className="space-y-1 text-sm">
+          {markers.map((e, i) => (
+            <li key={i} className="flex flex-wrap items-center gap-2">
+              <span className="tabular-nums text-slate-500">+{fmtMs(t(e.ts) - t0)}</span>
+              <Badge tone={e.kind === "human" ? "violet" : "slate"}>{e.name}</Badge>
+              <span className="text-slate-500">{e.actor}</span>
+              {e.kind === "human" && typeof e.data.reason === "string" && <span>“{e.data.reason}”</span>}
+              <span className="ml-auto hidden text-xs text-slate-400 sm:inline">{when(e.ts)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function CallChip({ e }: { e: AuditEvent }) {
+  const isLlm = e.kind === "llm";
+  const tok = isLlm && (e.input_tokens != null || e.output_tokens != null)
+    ? ` · ${e.input_tokens ?? 0}→${e.output_tokens ?? 0} tok`
+    : "";
+  const attempts = Number(e.data.attempts ?? 1);
+  return (
+    <span
+      title={JSON.stringify(e.data)}
+      className={cn(
+        "inline-flex items-center gap-1 rounded px-1.5 py-0.5 font-mono text-[11px]",
+        e.error
+          ? "bg-rose-100 text-rose-800"
+          : isLlm
+            ? "bg-violet-100 text-violet-800"
+            : "bg-sky-100 text-sky-800",
+      )}
+    >
+      {isLlm ? "LLM" : "tool"} {e.name} · {e.latency_ms != null ? fmtMs(e.latency_ms) : "?"}
+      {tok}
+      {isLlm && e.cost_usd ? ` · $${e.cost_usd.toFixed(4)}` : ""}
+      {attempts > 1 ? ` · ${attempts} tries` : ""}
+      {e.error ? " · error" : ""}
+    </span>
+  );
+}

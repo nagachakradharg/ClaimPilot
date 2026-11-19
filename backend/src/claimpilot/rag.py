@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -87,7 +88,8 @@ async def ingest_policy_form(session: AsyncSession, path: Path) -> list[Clause]:
 
 async def retrieve_clauses(session: AsyncSession, form_id: str, query: str, k: int) -> list[Clause]:
     """Top-k clauses of ONE policy form by cosine similarity."""
-    qvec = get_embedder().embed_query(query)
+    # CPU-bound (and slow on first use): keep it off the event loop so the API stays responsive
+    qvec = await asyncio.to_thread(get_embedder().embed_query, query)
     distance = PolicyClause.embedding.cosine_distance(qvec)
     rows = await session.execute(
         select(PolicyClause, distance.label("distance"))
