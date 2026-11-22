@@ -48,3 +48,13 @@ async def test_hub_redacts_before_streaming_and_costs_tokens(monkeypatch):
         lambda: type("S", (), {"model_prices": {"openai:m": [1.0, 4.0]}})(),
     )
     assert cost_usd("openai:m", 1_000_000, 500_000) == 3.0
+
+
+def test_reason_key_groups_by_check():
+    from claimpilot.api.claims import reason_key
+
+    assert reason_key("flag:quote_not_verbatim:COLL-1") == "flag:quote_not_verbatim"
+    assert reason_key("flag:unpriced_damage_areas:rear hatch") == "flag:unpriced_damage_areas"
+    assert reason_key("fraud_score_0.77") == "fraud_score"
+    assert reason_key("payout_at_or_above_5000") == "payout_at_or_above_5000"
+    assert reason_key("low_confidence:cause") == "low_confidence:cause"

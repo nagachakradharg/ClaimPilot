@@ -36,3 +36,13 @@ def test_parse_model_spec(spec, expected):
 def test_parse_model_spec_rejects_bad(bad):
     with pytest.raises(ValueError):
         parse_model_spec(bad)
+
+
+def test_dev_jwt_secret_rejected_outside_dev():
+    import pytest
+
+    from claimpilot.config import Settings
+
+    with pytest.raises(ValueError, match="JWT_SECRET"):
+        Settings(env="prod", _env_file=None)
+    assert Settings(env="prod", jwt_secret="x" * 40, _env_file=None).env == "prod"

@@ -9,12 +9,13 @@ from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 REPO_DIR = BACKEND_DIR.parent
 DATA_DIR = REPO_DIR / "data"
+DEV_JWT_SECRET = "dev-only-change-me-0123456789abcdef0123456789abcdef"
 EVALS_DIR = REPO_DIR / "evals"
 EMBEDDING_DIM = 384  # fixed by the DB schema; must match the embedding model
 
@@ -79,7 +80,7 @@ class Settings(BaseSettings):
     total_loss_threshold: float = 0.75
 
     # Dev default only; set a long random JWT_SECRET in any shared or cloud environment.
-    jwt_secret: str = "dev-only-change-me-0123456789abcdef0123456789abcdef"
+    jwt_secret: str = DEV_JWT_SECRET
     jwt_ttl_minutes: int = 120
 
     # USD per 1M tokens per "provider:model", e.g. {"openai:<model>": [0.15, 0.60]}.
@@ -89,6 +90,12 @@ class Settings(BaseSettings):
     manual_handling_minutes: float = 45.0  # stated assumption, shown on the dashboard
 
     cors_origins: list[str] = ["http://localhost:5173"]
+
+    @model_validator(mode="after")
+    def _no_dev_secrets_outside_dev(self) -> Settings:
+        if self.env not in ("dev", "test") and self.jwt_secret == DEV_JWT_SECRET:
+            raise ValueError(f"JWT_SECRET must be set outside dev (ENV={self.env})")
+        return self
 
     def model_for(self, node: str) -> str:
         """Return the "provider:model" spec configured for a graph node."""

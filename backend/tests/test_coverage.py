@@ -123,3 +123,25 @@ def test_score_case_citation_rules():
     assert s["decision_ok"] and s["citation_ok"] and s["escalated"]
     result["citations"].append({"clause_id": "DUT-1"})  # outside acceptable set
     assert not score_case(case, result)["citation_ok"]
+
+
+def test_quote_check_allows_elision_but_not_paraphrase():
+    from claimpilot.graphs.coverage import quote_in_clause
+
+    clause = (
+        "We will pay for direct loss caused by collision. Collision means impact with an object."
+    )
+    assert quote_in_clause(
+        "We will pay for direct loss caused by collision... Collision means impact", clause
+    )
+    assert quote_in_clause("We will pay […] caused by collision.", clause)
+    assert not quote_in_clause("Collision means impact... We will pay", clause)  # wrong order
+    assert not quote_in_clause("We will cover any collision damage.", clause)  # paraphrase
+    assert not quote_in_clause("...", clause)
+
+
+def test_hatch_and_rocker_are_priced():
+    from claimpilot.estimates import estimate_repairs
+
+    est = estimate_repairs(["rear hatch", "driver's side rocker panel"], "medium", "sedan", "Mazda")
+    assert est.unpriced_areas == []

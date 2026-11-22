@@ -79,6 +79,26 @@ def _norm(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
 
 
+ELLIPSIS = re.compile(r"\[?(?:\.\.\.|\u2026)\]?")
+
+
+def quote_in_clause(quote: str, clause_text: str) -> bool:
+    """Verbatim check that allows elisions: every part between "..." / "\u2026" must appear
+    in the clause, in order. Paraphrase still fails."""
+    text = _norm(clause_text)
+    pos = 0
+    parts = [_norm(p) for p in ELLIPSIS.split(quote)]
+    parts = [p for p in parts if p]
+    if not parts:
+        return False
+    for part in parts:
+        i = text.find(part, pos)
+        if i < 0:
+            return False
+        pos = i + len(part)
+    return True
+
+
 def build_query(facts: ClaimFacts) -> str:
     areas = ", ".join(facts.damage_areas)
     return f"{facts.claim_type.value} claim. {facts.description} Damage: {areas}"
@@ -201,7 +221,7 @@ async def _finalize(
         if clause is None:
             flags.append(f"invalid_citation:{cit.clause_id}")
             continue
-        if _norm(cit.quote) not in _norm(clause.text):
+        if not quote_in_clause(cit.quote, clause.text):
             flags.append(f"quote_not_verbatim:{cit.clause_id}")
         valid_citations.append(cit)
 

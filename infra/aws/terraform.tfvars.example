@@ -1,0 +1,6 @@
+# cp terraform.tfvars.example terraform.tfvars   (terraform.tfvars is gitignored)
+region             = "us-east-1"
+budget_email       = "you@example.com"
+monthly_budget_usd = 30
+llm_mode           = "fake"
+# certificate_arn  = "arn:aws:acm:...:certificate/..."

@@ -1,5 +1,38 @@
-# Local stack. Phase 0: Postgres + pgvector. API, mock core system, MCP server and
-# frontend services are added as they land (weeks 2-5).
+# Full local stack: Postgres + pgvector, mock legacy core system, MCP server, API, web UI.
+#   cp .env.example .env
+#   docker compose up -d --build
+#   docker compose run --rm api python -m claimpilot.seed
+#   open http://localhost:8080
+# LLM_MODE defaults to fake (no model needed). For the real local model, set LLM_MODE=live
+# in .env and run Ollama on the host; containers reach it via host.docker.internal.
+
+x-backend: &backend
+  build:
+    context: .
+    dockerfile: backend/Dockerfile
+  image: claimpilot-backend:local
+  env_file:
+    - path: .env
+      required: false
+  environment: &backend-env
+    # Override per run: LLM_MODE=live docker compose up -d   (needs Ollama on the host)
+    LLM_MODE: ${LLM_MODE:-fake}
+    DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-claimpilot}:${POSTGRES_PASSWORD:-claimpilot}@db:5432/${POSTGRES_DB:-claimpilot}
+    OLLAMA_HOST: http://host.docker.internal:11434
+    CORE_SYSTEM_URL: http://core-system:8100
+    MCP_SERVER_URL: http://mcp:8200/mcp
+    CORE_CLAIMS_FILE: /app/storage/core_system/claims.json
+    PHOTO_STORAGE_DIR: /app/storage/photos
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  volumes:
+    - storage:/app/storage
+    - coredata:/app/data/core_system
+    # Optional local-only Kaggle CSV for the seed (never baked into images; license terms).
+    # If absent, the seed uses its synthetic fallback.
+    - ./data/raw:/app/data/raw:ro
+  restart: unless-stopped
+
 services:
   db:
     image: pgvector/pgvector:pg17
@@ -18,5 +51,41 @@ services:
       timeout: 3s
       retries: 10
 
+  # Mock legacy core claims system (separate service, as a real one would be).
+  core-system:
+    <<: *backend
+    command: ["uvicorn", "claimpilot.core_system.app:app", "--host", "0.0.0.0", "--port", "8100"]
+
+  # MCP server: the anti-corruption layer the agents call instead of the core system.
+  mcp:
+    <<: *backend
+    command: ["python", "-m", "claimpilot.mcp_server", "--port", "8200"]
+    depends_on: [core-system]
+
+  api:
+    <<: *backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      mcp:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build: ./frontend
+    image: claimpilot-web:local
+    ports:
+      - "8080:80"
+    depends_on: [api]
+    restart: unless-stopped
+
 volumes:
   pgdata:
+  storage:
+  coredata:

@@ -117,7 +117,7 @@ async def submit_claim(
     async with get_sessionmaker()() as session, session.begin():
         policy = await session.get(Policy, claim_form.policy_number)
         session.add(ClaimRecord(claim_id=claim_id, owner_id=user.id,
-                                policy_number=claim_form.policy_number, status="submitted",
+                                policy_number=claim_form.policy_number, status="processing",
                                 review_reasons=[]))  # fmt: skip
     if policy:
         pii = (policy.holder_name, policy.holder_email, policy.holder_phone, policy.holder_address)
@@ -257,6 +257,19 @@ async def stream_events(
     return EventSourceResponse(gen())
 
 
+def reason_key(reason: str) -> str:
+    """Group review reasons for the dashboard: drop per-claim detail, keep the check's name.
+
+    flag:quote_not_verbatim:COLL-1 -> flag:quote_not_verbatim; fraud_score_0.77 -> fraud_score;
+    low_confidence:cause and payout_at_or_above_5000 stay as they are (already categories).
+    """
+    if reason.startswith("flag:"):
+        return ":".join(reason.split(":")[:2])
+    if reason.startswith("fraud_score_"):
+        return "fraud_score"
+    return reason
+
+
 @metrics_router.get("/metrics")
 async def metrics(
     request: Request, user: Annotated[CurrentUser, Depends(require(*STAFF))]
@@ -274,9 +287,7 @@ async def metrics(
     decided = [c for c in claims if c.decision]
     auto = [c for c in decided if c.decision == "auto_approved"]
     escalated = [c for c in claims if c.review_reasons]
-    reasons = Counter(r.split(":")[0] if r.startswith(("flag", "low_conf")) else
-                      r.rsplit("_", 1)[0] if r.startswith(("fraud_score", "payout_at")) else r
-                      for c in escalated for r in c.review_reasons)  # fmt: skip
+    reasons = Counter(reason_key(r) for c in escalated for r in c.review_reasons)
     times = sorted(c.processing_ms for c in claims if c.processing_ms and c.status != "invalid")
     costs = [float(r[1] or 0) for r in cost_rows]
     return {
