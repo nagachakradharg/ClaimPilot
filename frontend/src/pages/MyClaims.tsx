@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
-import { Button, Card, DecisionBadge, ErrorNote, Spinner, StatusBadge, money, when } from "../components/ui";
+import { Button, Card, DecisionBadge, ErrorNote, Spinner, StatusBadge } from "../components/ui";
+import { money, when } from "../lib/format";
 
 export default function MyClaims() {
   const q = useQuery({ queryKey: ["claims"], queryFn: () => api.claims(), refetchInterval: 5000 });

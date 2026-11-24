@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { Spinner } from "./components/ui";
-import { useAuth } from "./lib/auth";
+import { useAuth } from "./lib/authContext";
 import Login from "./pages/Login";
 import MyClaims from "./pages/MyClaims";
 import SubmitClaim from "./pages/SubmitClaim";

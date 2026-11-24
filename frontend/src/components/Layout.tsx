@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { useAuth } from "../lib/auth";
-import { Badge, Button, cn } from "./ui";
+import { useAuth } from "../lib/authContext";
+import { Badge, Button } from "./ui";
+import { cn } from "../lib/format";
 
 export const NOTICE = "Synthetic demo. Recommendations only; an adjuster makes final decisions.";
 

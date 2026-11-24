@@ -102,7 +102,13 @@ Tests (no API key; the DB tests skip without Postgres):
 ```bash
 cd backend && uv run pytest
 cd frontend && npm test
+scripts/smoke.sh                                 # end-to-end check against the running Docker stack
 ```
+
+CI (GitHub Actions, no API keys) runs three jobs:
+- **backend:** ruff, plus pytest against a Postgres + pgvector service; the job fails if the DB tests skip.
+- **frontend:** type check, lint with zero warnings, vitest and the production build.
+- **stack:** builds the images, runs `docker compose`, seeds, then runs the smoke test (claim → audit trail → PII check).
 
 ### LLM tiers (zero-cost development)
 | `LLM_MODE` | What it does | Cost |

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Notice } from "../components/Layout";
 import { Button, Card, ErrorNote, Field, Input } from "../components/ui";
-import { useAuth } from "../lib/auth";
+import { useAuth } from "../lib/authContext";
 
 // Seeded demo accounts (synthetic people). The shared demo password is in the README.
 const DEMO = [

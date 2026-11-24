@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
-import { Card, CardTitle, ErrorNote, Spinner, humanize, pct } from "../components/ui";
+import { Card, CardTitle, ErrorNote, Spinner } from "../components/ui";
+import { humanize, pct } from "../lib/format";
 
 const secs = (ms: number | null) => (ms == null ? "—" : ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`);
 

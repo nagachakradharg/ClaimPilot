@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { AuditEvent } from "../lib/api";
-import { buildSpans } from "./Timeline";
-import { stepStates } from "./Progress";
+import type { AuditEvent } from "./api";
+import { buildSpans } from "./trace";
+import { stepStates } from "./progress";
 
 const ev = (ms: number, kind: AuditEvent["kind"], name: string, latency_ms: number | null = null): AuditEvent => ({
   ts: new Date(Date.UTC(2026, 0, 1, 0, 0, 0, ms)).toISOString(),

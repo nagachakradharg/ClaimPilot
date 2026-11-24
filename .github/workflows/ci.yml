@@ -4,18 +4,70 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  LLM_MODE: fake # no API keys in CI
+
 jobs:
   backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
-    env:
-      LLM_MODE: fake  # no API keys in CI
+    services:
+      postgres: # the DB tests (graph restart, API flow, RAG) run instead of skipping
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: claimpilot
+          POSTGRES_PASSWORD: claimpilot
+          POSTGRES_DB: claimpilot
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U claimpilot -d claimpilot"
+          --health-interval 5s --health-timeout 3s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - run: uv sync --locked
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uv run pytest -q
+      - name: pytest (fails if the DB tests were skipped)
+        run: |
+          uv run pytest -q -rs | tee pytest.out
+          ! grep -q "Postgres not reachable" pytest.out
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx tsc -b
+      - run: npx eslint . --max-warnings 0
+      - run: npm test
+      - run: npm run build
+
+  stack:
+    # Builds the real images and runs a claim end to end through nginx -> API -> MCP -> core system.
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build --wait db api web
+      - run: docker compose run --rm api python -m claimpilot.seed
+      - run: scripts/smoke.sh
+      - name: logs on failure
+        if: failure()
+        run: docker compose logs --tail 200
+      - if: always()
+        run: docker compose down -v

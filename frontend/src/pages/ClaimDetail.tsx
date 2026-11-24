@@ -2,26 +2,12 @@ import { useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { api, type ClaimRun, type ReviewDecision } from "../lib/api";
-import { useAuth } from "../lib/auth";
+import { useAuth } from "../lib/authContext";
 import { useClaimEvents } from "../lib/useClaimEvents";
 import { Timeline } from "../components/Timeline";
 import { ProgressSteps } from "../components/Progress";
-import {
-  Badge,
-  Button,
-  Card,
-  CardTitle,
-  DecisionBadge,
-  ErrorNote,
-  Field,
-  Input,
-  Spinner,
-  StatusBadge,
-  cn,
-  humanize,
-  money,
-  pct,
-} from "../components/ui";
+import { Badge, Button, Card, CardTitle, DecisionBadge, ErrorNote, Field, Input, Spinner, StatusBadge } from "../components/ui";
+import { cn, humanize, money, pct } from "../lib/format";
 
 export default function ClaimDetail() {
   const { id } = useParams();

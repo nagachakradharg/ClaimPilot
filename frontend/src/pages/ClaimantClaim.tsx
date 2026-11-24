@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { useClaimEvents } from "../lib/useClaimEvents";
 import { ProgressSteps } from "../components/Progress";
-import { Card, CardTitle, DecisionBadge, ErrorNote, Spinner, StatusBadge, money } from "../components/ui";
+import { Card, CardTitle, DecisionBadge, ErrorNote, Spinner, StatusBadge } from "../components/ui";
+import { money } from "../lib/format";
 
 export default function ClaimantClaim() {
   const { id } = useParams();

@@ -1,9 +1,7 @@
 // Small shadcn-style primitives (same class conventions, no generator).
+import { cn, humanize } from "../lib/format";
 import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
 
-export function cn(...classes: (string | false | null | undefined)[]): string {
-  return classes.filter(Boolean).join(" ");
-}
 
 type Variant = "primary" | "secondary" | "danger" | "ghost";
 const VARIANTS: Record<Variant, string> = {
@@ -114,15 +112,6 @@ export function ErrorNote({ error }: { error: unknown }) {
   );
 }
 
-export const money = (n: number | null | undefined) =>
-  n == null ? "—" : n.toLocaleString("en-US", { style: "currency", currency: "USD" });
-
-export const pct = (n: number | null | undefined) => (n == null ? "—" : `${Math.round(n * 100)}%`);
-
-export const when = (iso: string) =>
-  new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
-
-export const humanize = (s: string) => s.replace(/_/g, " ");
 
 const STATUS_TONE: Record<string, Tone> = {
   submitted: "slate",
