@@ -32,12 +32,12 @@ Auto claim handlers spend most of their time on routine work: reading the story,
 | Legacy system outages | Retries with backoff and idempotent writes. Failures mark the claim failed and visible, never silently lost. |
 
 **Known gaps:**
-- Held-out citation correctness is 83% (target 90%).
+- Citation correctness (92% held-out) was measured on a held-out set already seen during prompt work; a fresh labeled set is needed.
 - Only one model family has been evaluated; a hosted provider still needs paid keys.
 - There is one API replica.
 
 ## Next steps
 1. Run the eval matrix on a hosted provider and choose a model per node by accuracy, cost and latency.
-2. Raise citation correctness: quote-span extraction and a verbatim match before acceptance.
+2. Label a fresh held-out set (coverage and citations) to confirm the numbers on unseen cases.
 3. Deploy the written AWS stack (ECS Fargate, RDS + pgvector) behind HTTPS, and move photos to S3.
 4. Pilot on a client's historical claims with their adjusters' decisions as labels, measuring straight-through rate and override rate.

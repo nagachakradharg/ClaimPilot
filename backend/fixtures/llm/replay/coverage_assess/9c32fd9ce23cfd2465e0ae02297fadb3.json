@@ -1,0 +1,17 @@
+{
+  "input_tokens": 1378,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "Loss caused by the following is considered other than collision: missiles or falling objects; fire; theft or larceny; explosion or earthquake; windstorm; hail, water or flood; malicious mischief or vandalism; riot or civil commotion; contact with a bird or animal; or breakage of glass."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states an earthquake caused a carport roof to collapse onto the car. 2. Insuring clause: [COMP-1] covers 'falling objects' and 'earthquake' as other-than-collision losses. 3. Exclusions: [EXC-1] (wear and tear) does not apply as the damage is from a falling object. [EXC-2] (commercial use) is not mentioned. [EXC-3] (racing) is not mentioned. [EXC-4] (intentional damage) is not mentioned. [EXC-5] (unlicensed driver) is not mentioned. [EXC-6] (personal property) is not applicable to the vehicle's roof/windshield. [EXC-7] (nuclear/war) does not apply to earthquake. The claim establishes the cause as an earthquake/falling object, which is covered under the comprehensive clause."
+  },
+  "output_tokens": 315
+}

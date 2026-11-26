@@ -1,0 +1,11 @@
+{
+  "input_tokens": 440,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_reviewer",
+  "output": {
+    "approved": true,
+    "issues": [],
+    "reasoning": "The letter accurately reflects the decision, the reason provided in the record, the verbatim policy quote, the next steps, and includes the required contact line."
+  },
+  "output_tokens": 56
+}

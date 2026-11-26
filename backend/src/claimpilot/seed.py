@@ -251,7 +251,9 @@ def build_users(policies: list[Policy]) -> list[User]:
         for n in CLAIMANT_POLICIES
     ]  # fmt: skip
     users += [
-        User(email="adjuster@claimpilot.example", name="Alex Adjuster", role="adjuster",
+        User(email="adjuster@claimpilot.example", name="Cool Adjuster", role="adjuster",
+             password_hash=pw),
+        User(email="adjuster2@claimpilot.example", name="Sam Adjuster", role="adjuster",
              password_hash=pw),
         User(email="auditor@claimpilot.example", name="Ari Auditor", role="auditor",
              password_hash=pw),
@@ -288,14 +290,15 @@ async def seed() -> dict[str, int | str]:
             session.add(policy)
             await session.flush()
             session.add(history)
-        session.add_all(build_users([p for p, _ in built]))
+        users = build_users([p for p, _ in built])
+        session.add_all(users)
         n_clauses = 0
         for path in sorted(POLICY_FORMS_DIR.glob("*.md")):
             n_clauses += len(await ingest_policy_form(session, path))
     return {
         "policies": N_POLICIES,
         "clauses": n_clauses,
-        "users": len(CLAIMANT_POLICIES) + 2,
+        "users": len(users),
         "history_source": source,
     }
 

@@ -1,0 +1,426 @@
+{
+  "suite": "coverage_holdout",
+  "prompt_version": "v2",
+  "llm_reasoning": "false",
+  "timestamp": "2026-11-27T00:38:30+00:00",
+  "llm_mode": "replay",
+  "model": "ollama:gemma4:12b",
+  "embedding": "fastembed:BAAI/bge-small-en-v1.5",
+  "summary": {
+    "n": 24,
+    "errors": 0,
+    "decision_accuracy": 1.0,
+    "escalation_recall": 1.0,
+    "false_auto_approvals": 0,
+    "citation_correctness": 0.917,
+    "must_cite_recall": 0.958,
+    "llm_calls": 23,
+    "latency_p50_ms": 0.4,
+    "latency_p95_ms": 0.5,
+    "avg_input_tokens": 1330,
+    "avg_output_tokens": 328,
+    "confusion": {
+      "covered->covered": 12,
+      "not_covered->not_covered": 10,
+      "ambiguous->ambiguous": 2
+    }
+  },
+  "cases": [
+    {
+      "id": "hold-001",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-002",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-003",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-004",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "EXC-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-005",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-006",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-5"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-007",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-008",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "LIAB-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-009",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "LIAB-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-010",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "GEN-1"
+      ],
+      "flags": [
+        "outside_policy_period"
+      ],
+      "error": false
+    },
+    {
+      "id": "hold-011",
+      "expected": "ambiguous",
+      "predicted": "ambiguous",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-012",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-013",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1",
+        "EXC-4"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-014",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1",
+        "COMP-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-015",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-016",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": false,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1",
+        "COMP-3",
+        "EXC-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-017",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-018",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "EXC-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-019",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "EXC-2"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-020",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": false,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": false,
+      "must_cite_hit": false,
+      "cited": [
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-021",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COMP-1",
+        "COMP-3"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-022",
+      "expected": "ambiguous",
+      "predicted": "ambiguous",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1",
+        "COMP-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-023",
+      "expected": "covered",
+      "predicted": "covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": false,
+      "should_escalate": false,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "COLL-1"
+      ],
+      "flags": [],
+      "error": false
+    },
+    {
+      "id": "hold-024",
+      "expected": "not_covered",
+      "predicted": "not_covered",
+      "decision_ok": true,
+      "part_ok": true,
+      "escalated": true,
+      "should_escalate": true,
+      "citation_ok": true,
+      "must_cite_hit": true,
+      "cited": [
+        "EXC-1"
+      ],
+      "flags": [],
+      "error": false
+    }
+  ]
+}

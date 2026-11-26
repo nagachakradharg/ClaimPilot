@@ -1,0 +1,7 @@
+{
+  "input_tokens": 613,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_writer",
+  "output": "Subject: Claim Decision Regarding {CLAIM_NUMBER}\n\nDear {CLAIMANT_NAME},\n\nWe have completed our review of your collision claim. We are writing to inform you that your claim for coverage is denied.\n\nThis decision was reached because the vehicle was being used for paid deliveries while logged into a delivery app at the time of the loss. Your policy includes the following exclusion: \"[EXC-2] We will not pay for loss to your covered auto while it is being used to carry persons or property for a fee, including while the driver is logged in to a transportation network or delivery platform.\"\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any questions regarding this letter.\n\nClaimPilot Claims Team",
+  "output_tokens": 169
+}

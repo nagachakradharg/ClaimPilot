@@ -1,0 +1,7 @@
+{
+  "input_tokens": 607,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_writer",
+  "output": "Subject: Claim Decision Regarding {CLAIM_NUMBER}\n\nDear {CLAIMANT_NAME},\n\nWe are writing to inform you that your claim for collision damage has been denied.\n\nThis decision was reached because the photos provided show a different vehicle than the one insured, and the damage could not be verified. Your policy includes the following coverage: \"[COLL-1] We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations.\"\n\nIf you disagree, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any questions regarding this letter.\n\nClaimPilot Claims Team",
+  "output_tokens": 143
+}

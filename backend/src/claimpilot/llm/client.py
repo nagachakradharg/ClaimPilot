@@ -144,7 +144,14 @@ class LLMClient:
     ) -> Any:
         model = build_chat_model(spec)
         runnable = model.with_structured_output(schema, include_raw=True) if schema else model
-        config = {"callbacks": get_callbacks(), "run_name": node, "tags": [node]}
+        config = {
+            "callbacks": get_callbacks(),
+            "run_name": node,
+            "tags": [node],
+            # FR-7.3: one run_id (claim id or eval case) links audit rows, cost and traces;
+            # Langfuse groups every model call of a run into one session.
+            "metadata": {"run_id": record.run_id, "langfuse_session_id": record.run_id},
+        }
         convo = list(messages)
 
         for repair_round in range(2):  # first try + one repair attempt

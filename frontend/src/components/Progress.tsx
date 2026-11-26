@@ -16,7 +16,9 @@ export function ProgressSteps({ events, finalStatus }: { events: StreamEvent[]; 
             ? "Approved automatically (within auto-approval limits)"
             : node === "review" && st === "waiting"
               ? "Waiting for an adjuster"
-              : label;
+              : node === "letter" && st === "waiting"
+                ? "A person is checking your letter"
+                : label;
         return (
           <li key={node} className="flex items-center gap-3 text-sm">
             <span

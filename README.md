@@ -17,7 +17,7 @@ ClaimPilot closes simple, clean claims straight through and routes everything el
 | Coverage ‖ Fraud | *In parallel.* Coverage: retrieve clauses (pgvector) → decide covered / not covered / ambiguous, quoting the clause. Fraud: document consistency, photo-vs-story match, claim history → one score | LLM + RAG; rules for history |
 | Payout | Lowest repair quote vs vehicle value (ACV), deductible, total-loss rule | **Code only** (no LLM arithmetic) |
 | Review gate | Auto-approve only if covered, fraud < 0.6, payout < $5,000, confident extraction and no check flags; otherwise pause for an adjuster (approve / deny / override, with a reason) | Code + human |
-| Letter | Draft → independent review → one revision. Amounts and claim numbers are filled in by code, so the model can't misstate them | LLM + code checks |
+| Letter | Draft → independent review → one revision. Amounts and claim numbers are filled in by code, so the model can't misstate them. A letter that still fails is never sent: the claim pauses until an adjuster fixes it | LLM + code checks + human |
 | Close | Update the core system, write the audit trail | Code |
 
 ## Architecture
@@ -44,11 +44,11 @@ Local model `ollama:gemma4:12b` (text + vision), $0 per claim. Full tables: [eva
 |---|---|---|---|
 | Coverage decision accuracy | held-out, 24 cases | **100%** | ≥ 80% |
 | Safe-escalation recall (risky claims sent to a human) | held-out | **100%**, 0 false auto-approvals | ≥ 95% |
-| Citation correctness | dev 30 / held-out 24 | 100% / **83%** | ≥ 90% (held-out misses it) |
+| Citation correctness | dev 30 / held-out 24 | 100% / **92%** | ≥ 90% |
 | Photo severity | validation, 24 photos | 92% exact, 100% within one level | — |
-| Decision letters | 12 cases | 100% correct decision and amount, 0 flagged | 100% |
+| Decision letters | 12 cases | 100% correct decision and amount, 0 flagged; 11 of 12 pass on the first draft | 100% |
 
-- **End to end on a laptop (M1 Pro):** about 70 s to reach the review gate, plus about 30 s for the letter. In fake mode a claim takes about 1 s.
+- **End to end on a laptop (M1 Pro):** about 70 s to reach the review gate, plus about 15 s for the letter. In fake mode a claim takes about 1 s.
 - **Not done yet:** an eval on a second (hosted) provider, which needs paid API keys. See Limitations.
 
 ## Screenshots
@@ -77,7 +77,7 @@ LLM_MODE=live docker compose up -d
 | Role | Email | Can |
 |---|---|---|
 | Claimant | `casey.fofana@example.com` (policy CP-100003) | file claims, see own status and letter |
-| Adjuster | `adjuster@claimpilot.example` | queue, approve / deny / override, trace, impact |
+| Adjuster | `adjuster@claimpilot.example`, `adjuster2@claimpilot.example` | queue (all / mine / unassigned), assign, approve / deny / override, fix flagged letters, trace, impact |
 | Auditor | `auditor@claimpilot.example` | read-only: all claims, audit, impact |
 
 Password for all: `claimpilot-demo` locally. Set `DEMO_PASSWORD` before seeding any shared deployment.
@@ -102,13 +102,14 @@ Tests (no API key; the DB tests skip without Postgres):
 ```bash
 cd backend && uv run pytest
 cd frontend && npm test
-scripts/smoke.sh                                 # end-to-end check against the running Docker stack
+scripts/smoke.sh                                 # API end-to-end check against the running Docker stack
+cd frontend && npm run e2e                       # Playwright browser tests against the same stack
 ```
 
 CI (GitHub Actions, no API keys) runs three jobs:
 - **backend:** ruff, plus pytest against a Postgres + pgvector service; the job fails if the DB tests skip.
 - **frontend:** type check, lint with zero warnings, vitest and the production build.
-- **stack:** builds the images, runs `docker compose`, seeds, then runs the smoke test (claim → audit trail → PII check).
+- **stack:** builds the images, runs `docker compose`, seeds, then runs the smoke test (claim → audit trail → PII check) and the Playwright browser tests.
 
 ### LLM tiers (zero-cost development)
 | `LLM_MODE` | What it does | Cost |
@@ -129,10 +130,11 @@ Terraform for ECS Fargate, ALB, RDS (pgvector), EFS, Secrets Manager and a budge
 ## Limitations
 - **Synthetic data only.** Policies are seeded from a public CC0 dataset ([docs/data-sources.md](docs/data-sources.md)); the photos are openly licensed, and their attribution is in `data/photos/ATTRIBUTION.md`.
 - **One model family evaluated.** The second-provider comparison in the requirements still needs paid API keys.
-- **Citations:** held-out citation correctness is 83%, below the 90% target. The `quote_not_verbatim` check catches paraphrased quotes and sends those claims to review, but it also flags some harmless paraphrases.
-- **Letters** usually need one revision (about 10 s more).
+- **Citations:** held-out citation correctness went from 83% to 92%. The fix is a deterministic rule: a "covered" decision always cites its part's insuring clause, and the other part's insuring clause is dropped. It was rescored on the recorded model outputs, and that held-out set had already been seen during prompt work, so treat 92% as optimistic until a fresh set is labeled.
 - **Single API replica:** live progress fan-out is in-process.
-- **No per-adjuster assignment:** adjusters share one queue. There is no self-signup or password reset (out of scope).
+- **Tracing not yet exercised against a live Langfuse.** Calls are grouped per claim or eval case (`langfuse_session_id` = run id) with PII masked; it needs Langfuse keys (cloud free tier, or self-hosting, which takes about 4–6 GB of RAM).
+- **Photos are on a local or EFS volume.** S3 with presigned uploads is the production path. Prompt caching applies only to hosted providers.
+- There is no self-signup or password reset (out of scope).
 - **Hours saved** on the dashboard is an estimate built on a stated assumption: 45 minutes of manual handling per auto-approved claim.
 
 ## More

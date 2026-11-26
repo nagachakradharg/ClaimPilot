@@ -185,3 +185,97 @@ async def test_invalid_submission_reported_to_claimant(api):
     await _settle(api)
     mine = (await api.get(f"/claims/{claim_id}", headers=claimant)).json()
     assert mine["status"] == "invalid" and mine["errors"]
+
+
+async def test_photos_served_reencoded_and_scoped(api):
+    _fakes()
+    claimant = await _token(api, CLAIMANT)
+    claim_id = await _submit(api, claimant)
+    await _settle(api)
+    names = (await api.get(f"/claims/{claim_id}/photos", headers=claimant)).json()
+    assert len(names) == 1
+    r = await api.get(f"/claims/{claim_id}/photos/{names[0]}", headers=claimant)
+    assert r.status_code == 200 and r.headers["content-type"] == "image/jpeg"
+    assert r.content[:2] == b"\xff\xd8"
+    # staff can see it; path traversal and other claimants cannot
+    adjuster = await _token(api, ADJUSTER)
+    assert (
+        await api.get(f"/claims/{claim_id}/photos/{names[0]}", headers=adjuster)
+    ).status_code == 200
+    assert (
+        await api.get(f"/claims/{claim_id}/photos/..%2F..%2Fsecret", headers=adjuster)
+    ).status_code == 404
+    from sqlalchemy import select
+
+    from claimpilot.db import get_sessionmaker
+    from claimpilot.models import User
+
+    async with get_sessionmaker()() as session:
+        other = await session.scalar(select(User.email).where(User.policy_number == "CP-100005"))
+    other_h = await _token(api, other)
+    assert (await api.get(f"/claims/{claim_id}/photos", headers=other_h)).status_code == 404
+
+
+async def test_flagged_letter_edited_by_adjuster(api):
+    _fakes(letter="Subject: Claim {CLAIM_NUMBER}\n\nDear {CLAIMANT_NAME}, we will pay $999.")
+    claimant, adjuster = await _token(api, CLAIMANT), await _token(api, ADJUSTER)
+    claim_id = await _submit(api, claimant)
+    await _settle(api)
+    staff = (await api.get(f"/claims/{claim_id}", headers=adjuster)).json()
+    assert staff["status"] == "pending_letter"
+    mine = (await api.get(f"/claims/{claim_id}", headers=claimant)).json()
+    assert mine["letter"] is None  # a flagged letter is never shown to the claimant
+    body = {"subject": "Your claim is approved", "body": "Dear Casey, approved. " * 5}
+    assert (
+        await api.post(f"/claims/{claim_id}/letter", headers=claimant, json=body)
+    ).status_code == 403
+    r = await api.post(f"/claims/{claim_id}/letter", headers=adjuster, json=body)
+    assert r.status_code == 202
+    await _settle(api)
+    mine = (await api.get(f"/claims/{claim_id}", headers=claimant)).json()
+    assert mine["status"] == "closed" and mine["letter"]["subject"] == "Your claim is approved"
+    again = await api.post(f"/claims/{claim_id}/letter", headers=adjuster, json=body)
+    assert again.status_code == 409
+
+
+async def test_per_adjuster_queue_and_assignment(api):
+    _fakes(photo={"observations": [], "mismatches": ["no damage visible"], "risk": 0.9})
+    claimant = await _token(api, CLAIMANT)
+    alex, sam = await _token(api, ADJUSTER), await _token(api, "adjuster2@claimpilot.example")
+    claim_id = await _submit(api, claimant)
+    await _settle(api)
+    unassigned = (await api.get("/claims?assigned=none", headers=alex)).json()
+    assert claim_id in {c["claim_id"] for c in unassigned}
+
+    r = await api.post(f"/claims/{claim_id}/assign", headers=alex, json={"to": "me"})
+    assert r.json()["assigned_to"] == ADJUSTER
+    mine = (await api.get("/claims?assigned=me", headers=alex)).json()
+    assert [c["claim_id"] for c in mine] == [claim_id]
+    assert (await api.get("/claims?assigned=me", headers=sam)).json() == []
+
+    # Sam can neither take it nor act on it; Cool can
+    assert (
+        await api.post(f"/claims/{claim_id}/assign", headers=sam, json={"to": "me"})
+    ).status_code == 409
+    review = {"action": "approve"}
+    assert (
+        await api.post(f"/claims/{claim_id}/review", headers=sam, json=review)
+    ).status_code == 409
+    assert (
+        await api.post(f"/claims/{claim_id}/review", headers=alex, json=review)
+    ).status_code == 202
+    await _settle(api)
+    audit = (await api.get(f"/claims/{claim_id}/audit", headers=alex)).json()
+    assert any(e["name"] == "assigned" and e["actor"] == ADJUSTER for e in audit)
+
+
+async def test_acting_on_unassigned_claim_assigns_it(api):
+    _fakes(photo={"observations": [], "mismatches": ["no damage visible"], "risk": 0.9})
+    claimant, sam = await _token(api, CLAIMANT), await _token(api, "adjuster2@claimpilot.example")
+    claim_id = await _submit(api, claimant)
+    await _settle(api)
+    r = await api.post(f"/claims/{claim_id}/review", headers=sam, json={"action": "approve"})
+    assert r.status_code == 202
+    await _settle(api)
+    row = (await api.get(f"/claims/{claim_id}", headers=sam)).json()
+    assert row["assigned_to"] == "adjuster2@claimpilot.example"

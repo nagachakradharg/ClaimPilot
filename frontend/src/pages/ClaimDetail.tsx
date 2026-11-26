@@ -6,6 +6,7 @@ import { useAuth } from "../lib/authContext";
 import { useClaimEvents } from "../lib/useClaimEvents";
 import { Timeline } from "../components/Timeline";
 import { ProgressSteps } from "../components/Progress";
+import { Photos } from "../components/Photos";
 import { Badge, Button, Card, CardTitle, DecisionBadge, ErrorNote, Field, Input, Spinner, StatusBadge } from "../components/ui";
 import { cn, humanize, money, pct } from "../lib/format";
 
@@ -69,14 +70,28 @@ export default function ClaimDetail() {
           {audit.data && <Timeline events={audit.data} />}
         </Card>
       ) : (
-        run && <Overview run={run} reasons={c?.review_reasons ?? []} status={c!.status} />
+        run && (
+          <Overview run={run} reasons={c?.review_reasons ?? []} status={c!.status} assignedTo={c?.assigned_to ?? null} />
+        )
       )}
     </div>
   );
 }
 
-function Overview({ run, reasons, status }: { run: ClaimRun; reasons: string[]; status: string }) {
+function Overview({
+  run,
+  reasons,
+  status,
+  assignedTo,
+}: {
+  run: ClaimRun;
+  reasons: string[];
+  status: string;
+  assignedTo: string | null;
+}) {
   const { user } = useAuth();
+  const waiting = status === "pending_review" || status === "pending_letter";
+  const canAct = user?.role === "adjuster" && (!assignedTo || assignedTo === user.email);
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       <div className="space-y-4 lg:col-span-2">
@@ -92,6 +107,7 @@ function Overview({ run, reasons, status }: { run: ClaimRun; reasons: string[]; 
             </div>
           </Card>
         )}
+        <Photos claimId={run.claim_id} />
         <Intake run={run} />
         <Coverage run={run} />
         <Fraud run={run} />
@@ -99,7 +115,9 @@ function Overview({ run, reasons, status }: { run: ClaimRun; reasons: string[]; 
         {run.letter && <LetterCard run={run} />}
       </div>
       <div className="space-y-4">
-        {status === "pending_review" && user?.role === "adjuster" && <ReviewActions run={run} />}
+        {waiting && user?.role === "adjuster" && <Assignment claimId={run.claim_id} assignedTo={assignedTo} />}
+        {status === "pending_review" && canAct && <ReviewActions run={run} />}
+        {status === "pending_letter" && canAct && run.letter && <LetterEditor run={run} />}
         {status === "pending_review" && user?.role === "auditor" && (
           <Card className="text-sm text-slate-600">Auditors have read-only access.</Card>
         )}
@@ -330,6 +348,7 @@ function LetterCard({ run }: { run: ClaimRun }) {
         right={
           <div className="flex gap-1">
             {l.revisions > 0 && <Badge>revised {l.revisions}×</Badge>}
+            {l.edited_by && <Badge tone="violet">edited by {l.edited_by}</Badge>}
             {l.needs_adjuster_edit && <Badge tone="red">needs adjuster edit</Badge>}
           </div>
         }
@@ -420,6 +439,100 @@ function ReviewActions({ run }: { run: ClaimRun }) {
           {m.isSuccess ? "Submitted" : m.isPending ? "Submitting…" : action}
         </Button>
       </form>
+    </Card>
+  );
+}
+
+function LetterEditor({ run }: { run: ClaimRun }) {
+  const qc = useQueryClient();
+  const l = run.letter!;
+  const [subject, setSubject] = useState(l.subject);
+  const [body, setBody] = useState(l.body);
+  const m = useMutation({
+    mutationFn: () => api.editLetter(run.claim_id, { subject, body }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["claim", run.claim_id] });
+      qc.invalidateQueries({ queryKey: ["claims"] });
+    },
+  });
+  return (
+    <Card className="border-amber-200">
+      <CardTitle>Fix the letter</CardTitle>
+      <p className="mb-2 text-sm text-slate-600">
+        The draft failed its checks twice, so it was not sent. Correct it and send it.
+      </p>
+      {l.issues.length > 0 && (
+        <ul className="mb-3 list-disc pl-5 text-xs text-rose-600">
+          {l.issues.map((i) => (
+            <li key={i}>{i}</li>
+          ))}
+        </ul>
+      )}
+      <form
+        className="space-y-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          m.mutate();
+        }}
+      >
+        <Field label="Subject">
+          <Input value={subject} onChange={(e) => setSubject(e.target.value)} required minLength={3} />
+        </Field>
+        <Field label="Letter" hint="Final text: write the actual amounts and names, no {PLACEHOLDERS}.">
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            rows={12}
+            required
+            minLength={40}
+            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+          />
+        </Field>
+        <ErrorNote error={m.error} />
+        <Button type="submit" className="w-full" disabled={m.isPending || m.isSuccess}>
+          {m.isSuccess ? "Sent" : m.isPending ? "Sending…" : "Send letter"}
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
+function Assignment({ claimId, assignedTo }: { claimId: string; assignedTo: string | null }) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const mine = assignedTo === user?.email;
+  const m = useMutation({
+    mutationFn: (to: "me" | null) => api.assign(claimId, to),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["claim", claimId] });
+      qc.invalidateQueries({ queryKey: ["claims"] });
+    },
+  });
+  return (
+    <Card className="py-3">
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span>
+          {assignedTo ? (
+            <>
+              Assigned to <strong>{mine ? "you" : assignedTo}</strong>
+            </>
+          ) : (
+            <span className="text-slate-500">Unassigned: in the shared queue</span>
+          )}
+        </span>
+        {!assignedTo && (
+          <Button variant="secondary" onClick={() => m.mutate("me")} disabled={m.isPending}>
+            Assign to me
+          </Button>
+        )}
+        {mine && (
+          <Button variant="ghost" onClick={() => m.mutate(null)} disabled={m.isPending}>
+            Release
+          </Button>
+        )}
+      </div>
+      {assignedTo && !mine && <p className="mt-2 text-xs text-slate-500">Only the assignee can act on this claim.</p>}
+      <ErrorNote error={m.error} />
     </Card>
   );
 }

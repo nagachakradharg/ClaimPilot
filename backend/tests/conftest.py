@@ -6,7 +6,7 @@ os.environ["CORE_CLAIMS_FILE"] = os.path.join(tempfile.mkdtemp(), "core_claims.j
 
 import pytest
 
-from claimpilot.config import LLMMode, Settings, get_settings
+from claimpilot.config import BACKEND_DIR, LLMMode, Settings, get_settings
 from claimpilot.llm import fake_responses
 
 
@@ -55,7 +55,33 @@ def _ensure_test_db() -> str | None:
     return f"{url.rsplit('/', 1)[0]}/{TEST_DB}"
 
 
+def _migrate_test_db(url: str | None) -> None:
+    """Fresh schema per test session, built by the real Alembic migrations (so the tests also
+    exercise the migrations). Only ever touches the throwaway test database."""
+    if url is None:
+        return
+    import os
+    import subprocess
+
+    import psycopg
+
+    assert url.endswith(f"/{TEST_DB}")
+    with psycopg.connect(
+        url.replace("postgresql+psycopg://", "postgresql://"), autocommit=True
+    ) as c:
+        c.execute("DROP SCHEMA public CASCADE")
+        c.execute("CREATE SCHEMA public")
+    subprocess.run(
+        ["alembic", "upgrade", "head"],
+        cwd=BACKEND_DIR,
+        env=os.environ | {"DATABASE_URL": url},
+        check=True,
+        capture_output=True,
+    )
+
+
 TEST_DB_URL = _ensure_test_db()
+_migrate_test_db(TEST_DB_URL)
 requires_db = pytest.mark.skipif(TEST_DB_URL is None, reason="Postgres not reachable")
 
 
@@ -69,19 +95,13 @@ def _clear_caches():
 
 @pytest.fixture
 async def seeded_db(monkeypatch):
-    from sqlalchemy import text
-
     from claimpilot.db import get_engine
-    from claimpilot.models import Base
     from claimpilot.seed import seed
 
     monkeypatch.setenv("DATABASE_URL", TEST_DB_URL)
     monkeypatch.setenv("EMBEDDING_PROVIDER", "hash")
     _clear_caches()
-    async with get_engine().begin() as conn:
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-        await conn.run_sync(Base.metadata.create_all)
-    await seed()
+    await seed()  # schema comes from the migrations (_migrate_test_db)
     yield
     await get_engine().dispose()
     _clear_caches()

@@ -14,7 +14,7 @@ from typing import TypedDict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import END, START, StateGraph
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from claimpilot.domain import Citation
 from claimpilot.llm import LLMClient
@@ -32,8 +32,13 @@ clause(s) quoted, the next steps exactly as given in the record, and a contact l
 
 Rules:
 - Never type dollar amounts, claim numbers or the claimant's name. Use these tokens exactly:
-  {CLAIMANT_NAME}, {CLAIM_NUMBER}, {PAYOUT}, {DEDUCTIBLE}. Use {PAYOUT} and {DEDUCTIBLE}
-  only when the decision is an approval.
+  {CLAIMANT_NAME}, {CLAIM_NUMBER}, {PAYOUT}, {DEDUCTIBLE}.
+- Money follows the record's "Payment" line exactly:
+  - Approval: state the payment with {PAYOUT}. Write {DEDUCTIBLE} only if the Payment line
+    names a deductible, and then always as "your {DEDUCTIBLE} deductible", e.g.
+    "This amount is after your {DEDUCTIBLE} deductible."
+  - Denial (Payment: none): say plainly that the claim is denied, and do not mention any
+    payment, payout, amount or deductible.
 - Do not mention internal review details such as risk checks, investigations or scores.
 - Do not promise anything the record does not state.
 - Sign off as "ClaimPilot Claims Team".
@@ -110,6 +115,21 @@ class Letter(BaseModel):
     revisions: int
     issues: list[str] = Field(default_factory=list)  # unresolved after the revision
     needs_adjuster_edit: bool = False
+    edited_by: str | None = None  # adjuster who corrected a flagged letter
+
+
+class LetterEdit(BaseModel):
+    """An adjuster's corrected letter, final text (no tokens), for a flagged letter."""
+
+    subject: str = Field(min_length=3, max_length=200)
+    body: str = Field(min_length=40, max_length=6000)
+    adjuster: str = "adjuster"
+
+    @model_validator(mode="after")
+    def _final_text(self) -> LetterEdit:
+        if left := set(re.findall(r"\{[A-Z_]+\}", f"{self.subject} {self.body}")):
+            raise ValueError(f"replace the placeholders {sorted(left)} with the actual values")
+        return self
 
 
 class LetterState(TypedDict, total=False):
@@ -133,6 +153,8 @@ def render(draft: LetterDraft, rec: LetterInput) -> tuple[str, str]:
     }
     subject = draft.subject
     body = draft.body
+    if "{CLAIM_NUMBER}" not in f"{subject}\n{body}":  # reference line, as on any claim letter
+        body = "Claim number: {CLAIM_NUMBER}\n\n" + body
     for token, value in values.items():
         subject, body = subject.replace(token, value), body.replace(token, value)
     return subject, body
@@ -155,8 +177,6 @@ def deterministic_issues(draft: LetterDraft, rec: LetterInput) -> list[str]:
         if "{DEDUCTIBLE}" in sentence and "deductible" not in bare:
             issues.append("Name the {DEDUCTIBLE} amount as the deductible in the same sentence.")
             break
-    if "{CLAIM_NUMBER}" not in text:
-        issues.append("Letter must reference the claim using the {CLAIM_NUMBER} token.")
     if approved and re.search(r"\b(denied|deny|not covered)\b", text, re.I):
         issues.append("Approval letter uses denial wording.")
     if not approved and not re.search(r"\b(denied|deny|not covered|unable to)\b", text, re.I):

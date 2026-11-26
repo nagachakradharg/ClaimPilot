@@ -1,19 +1,22 @@
 import type { AuditEvent } from "../lib/api";
-import { buildSpans, t } from "../lib/trace";
+import { buildSpans, t, timeAxis } from "../lib/trace";
 import { Badge } from "./ui";
 import { cn, when } from "../lib/format";
 
 // Trace timeline: per-node duration from node_start/node_end pairs, with the
 // model and tool calls that ran inside each node, plus tokens and cost.
 
+// Duration of a span excluding any review wait inside it (the review gate itself pauses).
+const activeDuration = (start: number, end: number, waits: { start: number; end: number }[]) =>
+  end - start - waits.reduce((n, w) => n + Math.max(0, Math.min(end, w.end) - Math.max(start, w.start)), 0);
+
 const fmtMs = (ms: number) => (ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`);
 
 export function Timeline({ events }: { events: AuditEvent[] }) {
   if (events.length === 0) return <p className="text-sm text-slate-500">No events yet.</p>;
   const spans = buildSpans(events);
-  const t0 = t(events[0].ts);
-  const tEnd = Math.max(...events.map((e) => t(e.ts)));
-  const total = Math.max(tEnd - t0, 1);
+  const axis = timeAxis(events);
+  const { t0, tEnd } = axis;
 
   const llm = events.filter((e) => e.kind === "llm");
   const tools = events.filter((e) => e.kind === "tool");
@@ -23,13 +26,14 @@ export function Timeline({ events }: { events: AuditEvent[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {[
-          ["Wall clock", fmtMs(total)],
+          ["Active time", fmtMs(axis.activeMs)],
           ["Model calls", String(llm.length)],
           ["Tokens", tokens.toLocaleString()],
           ["Model cost", `$${cost.toFixed(4)}`],
           ["Tool calls", String(tools.length)],
+          ...(axis.waits.length ? [["Review wait", fmtMs(axis.waitMs) + (axis.waits.some((w) => w.open) ? " (open)" : "")]] : []),
         ].map(([k, v]) => (
           <div key={k} className="rounded-md bg-slate-50 px-3 py-2">
             <div className="text-xs text-slate-500">{k}</div>
@@ -41,18 +45,26 @@ export function Timeline({ events }: { events: AuditEvent[] }) {
       <div className="space-y-1">
         {spans.map((s, i) => {
           const end = s.end ?? tEnd;
-          const left = ((s.start - t0) / total) * 100;
-          const width = Math.max(((end - s.start) / total) * 100, 0.4);
+          const left = axis.x(s.start);
+          const width = Math.max(axis.x(end) - left, 0.4);
           return (
             <div key={i} className="grid grid-cols-[minmax(0,14rem)_1fr] items-start gap-3 text-xs sm:grid-cols-[16rem_1fr]">
               <div className="truncate pt-0.5 font-mono" style={{ paddingLeft: s.depth * 14 }} title={s.name}>
                 {s.name.split("/").pop()}
                 <span className="ml-1.5 text-slate-500">
-                  {s.end == null ? "waiting" : fmtMs(end - s.start)}
+                  {s.end == null ? "waiting" : fmtMs(activeDuration(s.start, end, axis.waits))}
                 </span>
               </div>
               <div>
                 <div className="relative h-4 rounded bg-slate-100">
+                  {axis.waits.map((w, k) => (
+                    <div
+                      key={k}
+                      title={`Waiting for an adjuster: ${fmtMs(w.end - w.start)} (not to scale)`}
+                      className="absolute inset-y-0 bg-[repeating-linear-gradient(45deg,#e2e8f0_0,#e2e8f0_3px,#f8fafc_3px,#f8fafc_6px)]"
+                      style={{ left: `${axis.x(w.start)}%`, width: `${axis.x(w.end) - axis.x(w.start)}%` }}
+                    />
+                  ))}
                   <div
                     className={cn(
                       "absolute inset-y-0 rounded",

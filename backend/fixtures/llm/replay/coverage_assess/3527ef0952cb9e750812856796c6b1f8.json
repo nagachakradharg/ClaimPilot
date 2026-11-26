@@ -1,0 +1,21 @@
+{
+  "input_tokens": 1384,
+  "model": "ollama:gemma4:12b",
+  "node": "coverage_assess",
+  "output": {
+    "citations": [
+      {
+        "clause_id": "COMP-1",
+        "quote": "We will pay for direct and accidental loss to your covered auto not caused by collision... Loss caused by the following is considered other than collision: ... breakage of glass."
+      },
+      {
+        "clause_id": "COMP-2",
+        "quote": "If breakage of glass is caused by a collision, you may elect to have it treated as loss caused by collision."
+      }
+    ],
+    "coverage_part": "comprehensive",
+    "decision": "covered",
+    "reasoning": "1. Cause of loss: The claimant states a stone thrown up by a truck cracked the windshield. This falls under 'falling objects' or 'breakage of glass'.\n2. Insuring clause: [COMP-1] covers 'breakage of glass' as 'other than collision'. [COMP-2] also acknowledges glass breakage.\n3. Exclusions: [EXC-1] (Wear and tear) does not apply because the damage was caused by an external object (stone), not wear and tear. [EXC-2] (Commercial use), [EXC-3] (Racing), [EXC-4] (Intentional damage), [EXC-5] (Unlicensed driver), [EXC-6] (Custom equipment), and [EXC-7] (Nuclear/War) are not met by the facts provided. The claim does not mention any of these excluded activities or causes.\n4. Decision: The cause is established as breakage of glass, which is covered under the comprehensive (Other than collision) clause."
+  },
+  "output_tokens": 360
+}

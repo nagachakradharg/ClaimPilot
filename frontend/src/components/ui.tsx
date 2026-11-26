@@ -117,6 +117,7 @@ const STATUS_TONE: Record<string, Tone> = {
   submitted: "slate",
   processing: "blue",
   pending_review: "amber",
+  pending_letter: "amber",
   closed: "green",
   invalid: "red",
   failed: "red",

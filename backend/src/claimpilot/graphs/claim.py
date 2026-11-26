@@ -30,7 +30,13 @@ from claimpilot.estimates import RepairEstimates
 from claimpilot.graphs.coverage import build_coverage_graph
 from claimpilot.graphs.fraud import FraudResult, build_fraud_graph
 from claimpilot.graphs.intake import IntakeResult, build_intake_graph
-from claimpilot.graphs.letter import Decision, Letter, LetterInput, build_letter_graph
+from claimpilot.graphs.letter import (
+    Decision,
+    Letter,
+    LetterEdit,
+    LetterInput,
+    build_letter_graph,
+)
 from claimpilot.llm import LLMClient
 from claimpilot.mcp_server import CoreClaim, VehicleValue
 from claimpilot.payout import PayoutResult, compute_payout
@@ -42,6 +48,7 @@ class ClaimStatus(StrEnum):
     INVALID = "invalid"  # rejected at intake validation; never entered the lifecycle
     PROCESSING = "processing"
     PENDING_REVIEW = "pending_review"
+    PENDING_LETTER = "pending_letter"  # letter failed its checks twice; an adjuster edits it
     CLOSED = "closed"  # decided (see ClaimRun.decision) and letter produced
     FAILED = "failed"
 
@@ -283,7 +290,19 @@ def build_claim_graph(
             else None,
         )
         out = await letter_graph.ainvoke({"record": record})
+        if out["letter"].needs_adjuster_edit:  # never sent as is
+            return {"letter": out["letter"], "status": ClaimStatus.PENDING_LETTER}
         return {"letter": out["letter"]}
+
+    async def letter_edit(state: ClaimState) -> dict[str, Any]:
+        # Pauses for the adjuster's corrected letter (resume value: LetterEdit).
+        raw = interrupt({"claim_id": state["claim_id"], "issues": state["letter"].issues})
+        edit = LetterEdit.model_validate(raw)
+        edited = state["letter"].model_copy(
+            update={"subject": edit.subject, "body": edit.body, "needs_adjuster_edit": False,
+                    "edited_by": edit.adjuster}
+        )  # fmt: skip
+        return {"letter": edited, "status": ClaimStatus.PROCESSING}
 
     async def close(state: ClaimState) -> dict[str, Any]:
         await set_core_status(state, "closed")
@@ -300,6 +319,7 @@ def build_claim_graph(
         ("human_review", human_review),
         ("auto_approve", auto_approve),
         ("letter", letter),
+        ("letter_edit", letter_edit),
         ("close", close),
     ]:
         g.add_node(name, fn)
@@ -326,7 +346,12 @@ def build_claim_graph(
     )
     g.add_edge("human_review", "letter")
     g.add_edge("auto_approve", "letter")
-    g.add_edge("letter", "close")
+    g.add_conditional_edges(
+        "letter",
+        lambda s: "letter_edit" if s["letter"].needs_adjuster_edit else "close",
+        ["letter_edit", "close"],
+    )
+    g.add_edge("letter_edit", "close")
     g.add_edge("close", END)
     return g.compile(name="claim", checkpointer=checkpointer)
 
@@ -386,6 +411,12 @@ class ClaimService:
         if current.status is not ClaimStatus.PENDING_REVIEW:
             raise ValueError(f"claim {claim_id} is {current.status.value}, not pending_review")
         return await self._drive(claim_id, Command(resume=review.model_dump()))
+
+    async def edit_letter(self, claim_id: str, edit: LetterEdit) -> ClaimRun:
+        current = await self.get(claim_id)
+        if current.status is not ClaimStatus.PENDING_LETTER:
+            raise ValueError(f"claim {claim_id} is {current.status.value}, not pending_letter")
+        return await self._drive(claim_id, Command(resume=edit.model_dump()))
 
     async def get(self, claim_id: str) -> ClaimRun:
         snap = await self.graph.aget_state(self._config(claim_id))

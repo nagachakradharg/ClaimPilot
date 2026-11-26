@@ -210,3 +210,26 @@ async def test_model_failure_marks_claim_failed_and_keeps_partial_state():
     run = await svc.start(_form(), [_photo()])
     assert run.status is ClaimStatus.FAILED and "model down" in run.error
     assert run.intake is not None and run.core_claim_id is not None
+
+
+async def test_flagged_letter_waits_for_adjuster_edit_then_closes():
+    from claimpilot.graphs.letter import LetterEdit
+
+    # typed dollar amount on every draft -> fails code checks twice -> flagged
+    _fakes(letter="Subject: Claim {CLAIM_NUMBER}\n\nDear {CLAIMANT_NAME}, we will pay $999.")
+    svc, _ = _service()
+    run = await svc.start(_form(), [_photo()])
+    assert run.status is ClaimStatus.PENDING_LETTER and run.letter.needs_adjuster_edit
+    with pytest.raises(ValueError):  # the review action is not valid at this pause
+        await svc.resume(run.claim_id, ReviewDecision(action="approve"))
+    with pytest.raises(ValueError):  # placeholders must be replaced by the adjuster
+        LetterEdit(subject="Claim approved", body="Dear {CLAIMANT_NAME}, " + "x" * 50)
+    edit = LetterEdit(
+        subject="Your claim is approved",
+        body="Dear Casey, your claim is approved and payment will follow within 5 days. " * 2,
+        adjuster="adjuster@claimpilot.example",
+    )
+    done = await svc.edit_letter(run.claim_id, edit)
+    assert done.status is ClaimStatus.CLOSED
+    assert done.letter.edited_by == "adjuster@claimpilot.example"
+    assert not done.letter.needs_adjuster_edit and done.letter.subject == edit.subject

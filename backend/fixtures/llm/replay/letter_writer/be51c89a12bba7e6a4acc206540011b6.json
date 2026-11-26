@@ -1,0 +1,7 @@
+{
+  "input_tokens": 386,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_writer",
+  "output": "Subject: Claim Decision Regarding Your Theft Claim\n\nDear {CLAIMANT_NAME},\n\nWe have completed our review of your claim regarding the theft of your vehicle. At this time, we are unable to approve your request for coverage.\n\nOur records indicate that your policy provides liability coverage only and does not cover damage to or theft of your own vehicle. This is based on the following policy clause: \"[LIAB-2] This policy provides liability coverage only.\"\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any questions regarding this decision.\n\nClaimPilot Claims Team",
+  "output_tokens": 139
+}

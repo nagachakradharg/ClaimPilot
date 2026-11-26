@@ -1,0 +1,7 @@
+{
+  "input_tokens": 465,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_writer",
+  "output": "Subject: Claim Decision Regarding Your Collision Coverage\n\nDear {CLAIMANT_NAME},\n\nWe have completed the review of your claim regarding the incident on 2026-04-12. We are pleased to inform you that your claim has been approved.\n\nThe loss is covered under your collision coverage. According to your policy, [COLL-1] \"We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations.\"\n\nThe net payment to you is {PAYOUT}. Please note that the {DEDUCTIBLE} has already been subtracted from this amount.\n\nAs a next step, payment of {PAYOUT} will be issued within 5 business days.\n\nIf you have any questions, please contact us.\n\nClaimPilot Claims Team",
+  "output_tokens": 167
+}

@@ -6,7 +6,8 @@ import { useAuth } from "../lib/authContext";
 // Seeded demo accounts (synthetic people). The shared demo password is in the README.
 const DEMO = [
   { email: "casey.fofana@example.com", label: "Claimant (Casey)" },
-  { email: "adjuster@claimpilot.example", label: "Adjuster" },
+  { email: "adjuster@claimpilot.example", label: "Adjuster (Cool)" },
+  { email: "adjuster2@claimpilot.example", label: "Adjuster (Sam)" },
   { email: "auditor@claimpilot.example", label: "Auditor" },
 ];
 

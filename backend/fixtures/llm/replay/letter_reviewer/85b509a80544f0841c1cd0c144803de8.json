@@ -1,0 +1,13 @@
+{
+  "input_tokens": 459,
+  "model": "ollama:gemma4:12b",
+  "node": "letter_reviewer",
+  "output": {
+    "approved": false,
+    "issues": [
+      "The quoted policy clause [COLL-1] contains an extra comma ('accidental, loss') that is not present in the decision record ('accidental loss')."
+    ],
+    "reasoning": "The letter contains a punctuation error in the quoted policy clause that deviates from the record. The record states 'accidental loss', but the letter states 'accidental, loss' (adding a comma)."
+  },
+  "output_tokens": 107
+}

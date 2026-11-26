@@ -56,3 +56,13 @@ def resized_jpeg_b64(path: str, max_side: int) -> str:
         buf = io.BytesIO()
         img.save(buf, format="JPEG", quality=85)
     return base64.b64encode(buf.getvalue()).decode()
+
+
+def display_jpeg(path: Path, max_side: int) -> bytes:
+    """Re-encoded copy for the UI: EXIF (incl. GPS) stripped, oriented, downscaled."""
+    with Image.open(path) as img:
+        img = ImageOps.exif_transpose(img).convert("RGB")
+        img.thumbnail((max_side, max_side))
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=82)
+    return buf.getvalue()

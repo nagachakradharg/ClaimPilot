@@ -8,6 +8,7 @@ export type ClaimStatus =
   | "submitted"
   | "processing"
   | "pending_review"
+  | "pending_letter"
   | "closed"
   | "invalid"
   | "failed";
@@ -32,6 +33,7 @@ export interface ClaimSummary {
   // staff only
   review_reasons?: string[];
   core_claim_id?: string | null;
+  assigned_to?: string | null;
   processing_ms?: number | null;
   error?: string | null;
 }
@@ -42,6 +44,7 @@ export interface Letter {
   revisions: number;
   issues: string[];
   needs_adjuster_edit: boolean;
+  edited_by?: string | null;
 }
 
 export interface Citation {
@@ -239,8 +242,18 @@ export const api = {
       body: new URLSearchParams({ username: email, password }),
     }),
   me: () => request<Me>("/auth/me"),
-  claims: (status?: string) =>
-    request<ClaimSummary[]>(`/claims${status ? `?status_filter=${status}` : ""}`),
+  claims: (status?: string, assigned?: "me" | "none") => {
+    const q = new URLSearchParams();
+    if (status) q.set("status_filter", status);
+    if (assigned) q.set("assigned", assigned);
+    return request<ClaimSummary[]>(`/claims${q.size ? `?${q}` : ""}`);
+  },
+  assign: (id: string, to: "me" | null) =>
+    request<{ assigned_to: string | null }>(`/claims/${id}/assign`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to }),
+    }),
   claim: (id: string) => request<ClaimView>(`/claims/${id}`),
   audit: (id: string) => request<AuditEvent[]>(`/claims/${id}/audit`),
   metrics: () => request<Metrics>("/metrics"),
@@ -250,6 +263,21 @@ export const api = {
     photos.forEach((p) => fd.append("photos", p));
     return request<{ claim_id: string }>("/claims", { method: "POST", body: fd });
   },
+  photos: (id: string) => request<string[]>(`/claims/${id}/photos`),
+  photoBlob: async (id: string, name: string, size: "thumb" | "full" = "thumb") => {
+    const token = getToken();
+    const res = await fetch(`${API_URL}/claims/${id}/photos/${name}?size=${size}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new ApiError(res.status, "Photo unavailable");
+    return res.blob();
+  },
+  editLetter: (id: string, letter: { subject: string; body: string }) =>
+    request<{ status: string }>(`/claims/${id}/letter`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(letter),
+    }),
   review: (id: string, decision: ReviewDecision) =>
     request<{ status: string }>(`/claims/${id}/review`, {
       method: "POST",

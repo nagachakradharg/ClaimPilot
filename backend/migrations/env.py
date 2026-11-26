@@ -17,8 +17,10 @@ target_metadata = Base.metadata
 
 
 def include_object(obj, name, type_, reflected, compare_to):
-    # LangGraph owns its checkpoint_* tables (created by the checkpointer's setup()).
-    return not (type_ == "table" and name.startswith("checkpoint"))
+    # LangGraph owns its checkpoint_* tables and their indexes (created by the checkpointer's
+    # setup()); autogenerate must never touch them.
+    table = name if type_ == "table" else getattr(getattr(obj, "table", None), "name", "")
+    return not (table or "").startswith("checkpoint")
 
 
 from claimpilot.config import get_settings  # noqa: E402
@@ -42,7 +44,9 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection, target_metadata=target_metadata, include_object=include_object
+    )
 
     with context.begin_transaction():
         context.run_migrations()

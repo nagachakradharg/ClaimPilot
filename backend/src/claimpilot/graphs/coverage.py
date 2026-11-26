@@ -238,6 +238,10 @@ async def _finalize(
         if deductible is None:  # e.g. "covered" on a liability-only form, or part = none
             decision = CoverageDecision.AMBIGUOUS
             flags.append("coverage_part_not_on_policy")
+        else:
+            valid_citations = await _ground_in_insuring_clause(
+                valid_citations, part, policy["form_id"], sessionmaker
+            )
 
     return CoverageResult(
         decision=decision,
@@ -249,6 +253,28 @@ async def _finalize(
         retrieved_clause_ids=list(retrieved),
         flags=flags,
     )
+
+
+# The clause that grants each coverage part. A "covered" decision rests on it, so it is always
+# cited; the other part's insuring clause is not a basis for the decision and is dropped.
+INSURING_CLAUSE = {CoveragePart.COLLISION: "COLL-1", CoveragePart.COMPREHENSIVE: "COMP-1"}
+
+
+async def _ground_in_insuring_clause(
+    citations: list[Citation],
+    part: CoveragePart,
+    form_id: str,
+    sessionmaker: async_sessionmaker[AsyncSession],
+) -> list[Citation]:
+    own = INSURING_CLAUSE.get(part)
+    others = {c for p, c in INSURING_CLAUSE.items() if p is not part}
+    out = [c for c in citations if c.clause_id not in others]
+    if own and all(c.clause_id != own for c in out):
+        async with sessionmaker() as session:
+            found = await get_clauses(session, form_id, [own])
+        if found:  # forms without this clause (e.g. liability-only) are left alone
+            out.insert(0, Citation(clause_id=own, quote=found[0].text.split(". ")[0] + "."))
+    return out or citations
 
 
 async def run_coverage(

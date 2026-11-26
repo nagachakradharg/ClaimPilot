@@ -156,3 +156,15 @@ def test_deductible_must_be_named_and_absent_when_waived():
         subject="Claim {CLAIM_NUMBER}", body="Approved: {PAYOUT}. Your deductible is {DEDUCTIBLE}."
     )
     assert any("No deductible applies" in i for i in deterministic_issues(uses_token, waived))
+
+
+def test_render_adds_claim_reference_when_missing():
+    from claimpilot.graphs.letter import LetterDraft, deterministic_issues, render
+
+    draft = LetterDraft(
+        subject="Your claim decision", body="Dear {CLAIMANT_NAME}, we will pay {PAYOUT}."
+    )
+    rec = REC
+    assert not any("CLAIM_NUMBER" in i for i in deterministic_issues(draft, rec))
+    _, body = render(draft, rec)
+    assert body.startswith(f"Claim number: {rec.claim_number}\n")

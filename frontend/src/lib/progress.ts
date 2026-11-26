@@ -24,6 +24,7 @@ export function stepStates(events: StreamEvent[]): Record<string, StepState> {
   }
   const status = [...events].reverse().find((e) => e.kind === "status")?.name;
   if (status === "pending_review") s.review = "waiting";
+  if (status === "pending_letter") s.letter = "waiting";
   if (events.some((e) => e.kind === "human")) s.review = "done";
   // the review gate's node starts and then pauses; a human event or the letter resolves it
   if (s.review === "running" && s.letter !== "todo") s.review = "done";

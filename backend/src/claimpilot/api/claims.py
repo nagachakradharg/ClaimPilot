@@ -8,28 +8,43 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import statistics
 import time
 from collections import Counter
-from typing import Annotated, Any
+from pathlib import Path
+from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
-from pydantic import ValidationError
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
+from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy import func, select
 from sse_starlette import EventSourceResponse
 
 from claimpilot.auth import CurrentUser, Role, current_user, require
+from claimpilot.config import get_settings
 from claimpilot.db import get_sessionmaker
 from claimpilot.domain import ClaimForm
 from claimpilot.events import Event, EventHub
 from claimpilot.graphs.claim import ClaimRun, ClaimService, ClaimStatus, ReviewDecision
+from claimpilot.graphs.letter import LetterEdit
 from claimpilot.models import AuditEvent, ClaimRecord, Policy
+from claimpilot.photos import display_jpeg
 from claimpilot.redact import known_pii
 
 router = APIRouter(prefix="/claims", tags=["claims"])
 metrics_router = APIRouter(tags=["metrics"])
 STAFF = (Role.ADJUSTER, Role.AUDITOR)
-TERMINAL = {"invalid", "pending_review", "closed", "failed"}
+TERMINAL = {"invalid", "pending_review", "pending_letter", "closed", "failed"}  # pauses + ends
 
 
 def _svc(request: Request) -> ClaimService:
@@ -61,6 +76,7 @@ def _summary(rec: ClaimRecord, user: CurrentUser) -> dict[str, Any]:
     }
     if user.role is not Role.CLAIMANT:
         out |= {"review_reasons": rec.review_reasons, "core_claim_id": rec.core_claim_id,
+                "assigned_to": rec.assigned_to,
                 "processing_ms": rec.processing_ms, "error": rec.error}  # fmt: skip
     return out
 
@@ -139,9 +155,15 @@ async def submit_claim(
 
 @router.get("")
 async def list_claims(
-    user: Annotated[CurrentUser, Depends(current_user)], status_filter: str | None = None
+    user: Annotated[CurrentUser, Depends(current_user)],
+    status_filter: str | None = None,
+    assigned: Literal["me", "none"] | None = None,
 ) -> list[dict[str, Any]]:
     q = select(ClaimRecord).order_by(ClaimRecord.created_at.desc())
+    if assigned == "me":
+        q = q.where(ClaimRecord.assigned_to == user.email)
+    elif assigned == "none":
+        q = q.where(ClaimRecord.assigned_to.is_(None))
     if user.role is Role.CLAIMANT:
         q = q.where(ClaimRecord.owner_id == user.id)
     if status_filter:
@@ -169,6 +191,78 @@ async def get_claim(
     return out | {"detail": run.model_dump(mode="json")}
 
 
+PHOTO_NAME = re.compile(r"^[0-9a-f]{16}\.(?:jpg|png)$")
+
+
+def _photo_dir(claim_id: str) -> Path:
+    return get_settings().photo_storage_dir / claim_id
+
+
+@router.get("/{claim_id}/photos")
+async def list_photos(
+    claim_id: str, user: Annotated[CurrentUser, Depends(current_user)]
+) -> list[str]:
+    """File names of the claim's photos (owner claimant or staff)."""
+    await _record(claim_id, user)
+    d = _photo_dir(claim_id)
+    return sorted(p.name for p in d.iterdir() if PHOTO_NAME.match(p.name)) if d.is_dir() else []
+
+
+@router.get("/{claim_id}/photos/{name}")
+async def get_photo(
+    claim_id: str,
+    name: str,
+    user: Annotated[CurrentUser, Depends(current_user)],
+    size: Literal["thumb", "full"] = "thumb",
+) -> Response:
+    """A re-encoded JPEG (EXIF/GPS stripped). Originals are never served."""
+    await _record(claim_id, user)
+    path = _photo_dir(claim_id) / name
+    if not PHOTO_NAME.match(name) or not path.is_file():  # also blocks path traversal
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Photo not found")
+    data = await asyncio.to_thread(display_jpeg, path, 320 if size == "thumb" else 1600)
+    return Response(
+        data, media_type="image/jpeg", headers={"Cache-Control": "private, max-age=3600"}
+    )
+
+
+def _check_assignee(rec: ClaimRecord, user: CurrentUser) -> None:
+    """Per-adjuster queue: only the assignee acts on an assigned claim."""
+    if rec.assigned_to and rec.assigned_to != user.email:
+        raise HTTPException(status.HTTP_409_CONFLICT, f"Claim is assigned to {rec.assigned_to}")
+
+
+async def _start_action(claim_id: str, user: CurrentUser) -> None:
+    """Mark the claim processing; acting on an unassigned claim assigns it to the actor."""
+    async with get_sessionmaker()() as session, session.begin():
+        rec = await session.get(ClaimRecord, claim_id)
+        rec.status = "processing"
+        rec.assigned_to = rec.assigned_to or user.email
+
+
+class Assignment(BaseModel):
+    to: Literal["me"] | None = Field(description='"me" to take the claim, null to release it')
+
+
+@router.post("/{claim_id}/assign")
+async def assign_claim(
+    request: Request,
+    claim_id: str,
+    body: Assignment,
+    user: Annotated[CurrentUser, Depends(require(Role.ADJUSTER))],
+) -> dict[str, Any]:
+    rec = await _record(claim_id, user)
+    _check_assignee(rec, user)  # can't take or release someone else's claim
+    async with get_sessionmaker()() as session, session.begin():
+        row = await session.get(ClaimRecord, claim_id)
+        row.assigned_to = user.email if body.to == "me" else None
+        assigned = row.assigned_to
+    _hub(request).publish(Event(claim_id=claim_id, kind="human",
+                                name="assigned" if assigned else "unassigned",
+                                actor=user.email, data={"assigned_to": assigned}))  # fmt: skip
+    return {"claim_id": claim_id, "assigned_to": assigned}
+
+
 @router.post("/{claim_id}/review", status_code=status.HTTP_202_ACCEPTED)
 async def review_claim(
     request: Request,
@@ -179,12 +273,32 @@ async def review_claim(
     rec = await _record(claim_id, user)
     if rec.status != ClaimStatus.PENDING_REVIEW.value:
         raise HTTPException(status.HTTP_409_CONFLICT, f"Claim is {rec.status}, not pending_review")
+    _check_assignee(rec, user)
     decision = decision.model_copy(update={"adjuster": user.email})
-    async with get_sessionmaker()() as session, session.begin():
-        (await session.get(ClaimRecord, claim_id)).status = "processing"
+    await _start_action(claim_id, user)
     _hub(request).publish(Event(claim_id=claim_id, kind="human", name=f"review_{decision.action}",
                                 actor=user.email, data=decision.model_dump()))  # fmt: skip
     _spawn(request, _execute(request, claim_id, _svc(request).resume(claim_id, decision)))
+    return {"claim_id": claim_id, "status": "processing"}
+
+
+@router.post("/{claim_id}/letter", status_code=status.HTTP_202_ACCEPTED)
+async def edit_letter(
+    request: Request,
+    claim_id: str,
+    edit: LetterEdit,
+    user: Annotated[CurrentUser, Depends(require(Role.ADJUSTER))],
+) -> dict[str, Any]:
+    """Adjuster's corrected text for a letter that failed its checks."""
+    rec = await _record(claim_id, user)
+    if rec.status != ClaimStatus.PENDING_LETTER.value:
+        raise HTTPException(status.HTTP_409_CONFLICT, f"Claim is {rec.status}, not pending_letter")
+    _check_assignee(rec, user)
+    edit = edit.model_copy(update={"adjuster": user.email})
+    await _start_action(claim_id, user)
+    _hub(request).publish(Event(claim_id=claim_id, kind="human", name="letter_edited",
+                                actor=user.email, data={"subject": edit.subject}))  # fmt: skip
+    _spawn(request, _execute(request, claim_id, _svc(request).edit_letter(claim_id, edit)))
     return {"claim_id": claim_id, "status": "processing"}
 
 
