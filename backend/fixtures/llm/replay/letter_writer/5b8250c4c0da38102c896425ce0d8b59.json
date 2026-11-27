@@ -1,7 +1,0 @@
-{
-  "input_tokens": 418,
-  "model": "ollama:gemma4:12b",
-  "node": "letter_writer",
-  "output": "Subject: Claim Decision Regarding Your Theft Claim\n\nDear {CLAIMANT_NAME},\n\nWe have completed the review of your claim regarding the theft that occurred on 2026-04-12. We are pleased to inform you that your claim has been approved.\n\nThe loss is covered under your comprehensive coverage. According to your policy, [COMP-1] \"We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations.\"\n\nThe net payment to you is {PAYOUT}. Please note that the {DEDUCTIBLE} has already been subtracted from this amount.\n\nAs a next step, payment of {PAYOUT} will be issued within 5 business days.\n\nIf you have any questions regarding this decision, please contact us at our claims department.\n\nClaimPilot Claims Team",
-  "output_tokens": 177
-}

@@ -12,7 +12,7 @@
       "incident_date": 1.0,
       "location": 0.0,
       "severity": 0.9,
-      "vehicle": 0.8
+      "vehicle": 0.5
     },
     "damage_areas": [
       "windshield"

@@ -7,7 +7,7 @@
     "claimed_amount": null,
     "confidence": {
       "cause": 0.8,
-      "claim_type": 0.8,
+      "claim_type": 0.9,
       "damage_areas": 0.95,
       "incident_date": 1.0,
       "location": 0.0,
@@ -20,7 +20,7 @@
       "side mirror",
       "front fender"
     ],
-    "described_cause": "Damage to car",
+    "described_cause": "My car was damaged.",
     "incident_date": "2026-03-01",
     "location": null,
     "severity": "medium",
@@ -30,5 +30,5 @@
       "model": "Fortwo"
     }
   },
-  "output_tokens": 229
+  "output_tokens": 230
 }

@@ -1,7 +1,0 @@
-{
-  "input_tokens": 337,
-  "model": "ollama:gemma4:12b",
-  "node": "letter_writer",
-  "output": "Subject: Claim Decision Regarding Your Collision Coverage\n\nDear {CLAIMANT_NAME},\n\nWe have completed the review of your claim regarding the collision that occurred on 2026-03-04. We are pleased to inform you that your claim has been approved.\n\nThe loss is covered under your collision coverage. According to your policy, [COLL-1] \"We will pay for direct and accidental loss to your covered auto caused by collision... 'Collision' means the upset of your covered auto or its impact with another vehicle or object, including a parked vehicle, a pole, a guardrail, or a building.\"\n\nThe total payment for this claim is {PAYOUT}, and a {DEDUCTIBLE} has been applied.\n\nWhat happens next? We will issue the payment to the designated payee shortly. You will receive a separate communication regarding the disbursement of funds.\n\nIf you have any questions regarding this decision, please contact us at our claims department.\n\nSincerely,\n\nClaimPilot Claims Team",
-  "output_tokens": 206
-}

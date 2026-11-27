@@ -1,0 +1,33 @@
+{
+  "input_tokens": 959,
+  "model": "ollama:gemma4:12b",
+  "node": "intake_extract",
+  "output": {
+    "claim_type": "other",
+    "claimed_amount": null,
+    "confidence": {
+      "cause": 0.0,
+      "claim_type": 0.6,
+      "damage_areas": 0.95,
+      "incident_date": 1.0,
+      "location": 0.0,
+      "severity": 0.9,
+      "vehicle": 0.9
+    },
+    "damage_areas": [
+      "windshield",
+      "driver's side front door",
+      "front fender"
+    ],
+    "described_cause": "not stated",
+    "incident_date": "2026-03-01",
+    "location": null,
+    "severity": "medium",
+    "vehicle": {
+      "color": "silver/grey",
+      "make": null,
+      "model": null
+    }
+  },
+  "output_tokens": 210
+}

@@ -1,0 +1,259 @@
+{
+  "langfuse_session_id": null,
+  "suite": "severity_dev",
+  "prompt_version": "v2",
+  "timestamp": "2026-11-27T07:10:27+00:00",
+  "llm_mode": "record",
+  "model": "ollama:gemma4:12b",
+  "llm_reasoning": "false",
+  "summary": {
+    "n": 23,
+    "errors": 0,
+    "accuracy": 0.913,
+    "within_one": 1.0,
+    "high_recall": 1.0,
+    "latency_p50_ms": 20459.3,
+    "confusion": {
+      "medium->high": 2,
+      "low->low": 3,
+      "high->high": 11,
+      "medium->medium": 6,
+      "low->medium": 1
+    }
+  },
+  "cases": [
+    {
+      "image": "animal-front-grille.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "collision-rear-corner-minor.jpg",
+      "expected": "low",
+      "accepted": [
+        "low"
+      ],
+      "predicted": "low",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "collision-side-impact.jpg",
+      "expected": "high",
+      "accepted": [
+        "high",
+        "medium"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "collision-front-severe.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "collision-front-bumper-detached.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "collision-crushed-total.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "collision-rear-quarter.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium",
+        "high"
+      ],
+      "predicted": "medium",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "collision-front-crushed-closeup.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "collision-front-moderate.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium",
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "collision-door-dent.jpg",
+      "expected": "low",
+      "accepted": [
+        "low"
+      ],
+      "predicted": "medium",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "fire-night-engulfed.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "fire-engine-bay-street.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "fire-burning-total.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "flood-submerged.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "flood-street-wave.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "glass-windshield-crack.jpg",
+      "expected": "low",
+      "accepted": [
+        "low"
+      ],
+      "predicted": "low",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "hail-rear-window-smashed.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "hail-window-smashed.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "hail-windshield-smashed.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "tree-fell-on-car.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "tree-crushed-roof.jpg",
+      "expected": "high",
+      "accepted": [
+        "high"
+      ],
+      "predicted": "high",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "vandalism-windshield-smashed.jpg",
+      "expected": "medium",
+      "accepted": [
+        "medium"
+      ],
+      "predicted": "medium",
+      "error": false,
+      "trace_id": null
+    },
+    {
+      "image": "vandalism-keyed-paint.jpg",
+      "expected": "low",
+      "accepted": [
+        "low"
+      ],
+      "predicted": "low",
+      "error": false,
+      "trace_id": null
+    }
+  ]
+}

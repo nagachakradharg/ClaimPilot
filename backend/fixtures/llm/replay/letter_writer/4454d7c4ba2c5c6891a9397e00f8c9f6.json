@@ -1,7 +1,0 @@
-{
-  "input_tokens": 352,
-  "model": "ollama:gemma4:12b",
-  "node": "letter_writer",
-  "output": "Subject: Claim Decision Regarding Your Collision Coverage\n\nDear {CLAIMANT_NAME},\n\nWe have completed our review of your claim, {CLAIM_NUMBER}, regarding the collision that occurred on 2026-04-12. At this time, we are unable to approve your request for coverage.\n\nOur review determined that the photos provided show a different vehicle than the one listed on your policy. Consequently, the damage reported could not be verified. Your policy includes the following provision:\n\n[COLL-1] \"We will pay for direct and accidental loss to your covered auto caused by collision, minus the collision deductible shown in the Declarations.\"\n\nBecause the evidence provided does not align with your insured vehicle, we cannot provide a {PAYOUT} or apply a {DEDUCTIBLE}.\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any questions regarding this decision.\n\nClaimPilot Claims Team",
-  "output_tokens": 210
-}

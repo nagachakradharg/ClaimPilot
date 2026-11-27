@@ -7,30 +7,32 @@
     "claimed_amount": null,
     "confidence": {
       "cause": 0.5,
-      "claim_type": 0.6,
+      "claim_type": 0.7,
       "damage_areas": 0.9,
       "incident_date": 1.0,
       "location": 0.0,
-      "severity": 1.0,
+      "severity": 0.9,
       "vehicle": 0.8
     },
     "damage_areas": [
       "hood",
-      "front passenger door",
+      "front door",
+      "rear door",
+      "roof",
       "front fender",
       "windshield",
-      "roof",
-      "interior"
+      "side windows",
+      "wheels"
     ],
-    "described_cause": "damaged",
+    "described_cause": "Damaged",
     "incident_date": "2026-03-01",
     "location": null,
     "severity": "high",
     "vehicle": {
-      "color": "red/rust",
+      "color": "Red/Rust",
       "make": null,
       "model": null
     }
   },
-  "output_tokens": 232
+  "output_tokens": 244
 }

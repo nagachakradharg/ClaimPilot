@@ -6,7 +6,7 @@
     "claim_type": "collision",
     "claimed_amount": null,
     "confidence": {
-      "cause": 0.8,
+      "cause": 0.9,
       "claim_type": 0.9,
       "damage_areas": 0.95,
       "incident_date": 1.0,
@@ -21,9 +21,9 @@
       "windshield",
       "front left door",
       "side mirror",
-      "engine bay"
+      "engine bay/internal components"
     ],
-    "described_cause": "My car was damaged.",
+    "described_cause": "collision",
     "incident_date": "2026-03-01",
     "location": null,
     "severity": "high",

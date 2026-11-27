@@ -1,7 +1,0 @@
-{
-  "input_tokens": 344,
-  "model": "ollama:gemma4:12b",
-  "node": "letter_writer",
-  "output": "Subject: Claim Decision Regarding {CLAIM_NUMBER}\n\nDear {CLAIMANT_NAME},\n\nWe have completed our review of your collision claim regarding the incident on 2026-04-12. At this time, we are unable to provide coverage for this claim.\n\nOur records indicate that the policy was cancelled prior to the date of the incident. Per the policy terms, coverage is limited as follows: \"[GEN-1] This policy applies only to accidents and losses that occur during the policy period shown in the Declarations and within the United States, its territories or possessions, or Canada.\" Because the incident occurred outside of the active policy period, the claim is denied.\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any questions regarding this letter.\n\nClaimPilot Claims Team",
-  "output_tokens": 187
-}

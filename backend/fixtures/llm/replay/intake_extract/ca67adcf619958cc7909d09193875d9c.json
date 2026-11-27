@@ -1,0 +1,37 @@
+{
+  "input_tokens": 959,
+  "model": "ollama:gemma4:12b",
+  "node": "intake_extract",
+  "output": {
+    "claim_type": "other",
+    "claimed_amount": null,
+    "confidence": {
+      "cause": 0.9,
+      "claim_type": 0.9,
+      "damage_areas": 0.9,
+      "incident_date": 1.0,
+      "location": 0.0,
+      "severity": 1.0,
+      "vehicle": 0.8
+    },
+    "damage_areas": [
+      "front hood",
+      "front bumper",
+      "front grille",
+      "driver side front door",
+      "passenger side front door",
+      "engine bay",
+      "roof"
+    ],
+    "described_cause": "fire",
+    "incident_date": "2026-03-01",
+    "location": null,
+    "severity": "high",
+    "vehicle": {
+      "color": "white",
+      "make": null,
+      "model": null
+    }
+  },
+  "output_tokens": 242
+}

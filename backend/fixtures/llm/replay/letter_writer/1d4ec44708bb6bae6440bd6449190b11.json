@@ -1,7 +1,0 @@
-{
-  "input_tokens": 364,
-  "model": "ollama:gemma4:12b",
-  "node": "letter_writer",
-  "output": "Subject: Claim Decision Regarding Your Recent Incident\n\nDear {CLAIMANT_NAME},\n\nWe have completed our review of your claim, {CLAIM_NUMBER}, regarding the incident on 2026-04-12. At this time, we are unable to provide coverage for this claim.\n\nOur review determined that the damage is limited to a mechanical breakdown of the engine, with no collision or other covered event occurring. Your policy includes the following exclusion:\n\n\"[EXC-1] We will not pay for loss due to and confined to wear and tear, freezing, mechanical or electrical breakdown or failure, or road damage to tires, unless the damage results from the total theft of your covered auto.\"\n\nBecause the damage falls under this specific exclusion, we cannot issue a payment of {PAYOUT} or apply a {DEDUCTIBLE}.\n\nIf you disagree with this decision, you may ask for a review by replying to this letter within 30 days with any additional information.\n\nPlease contact us if you have any further questions.\n\nClaimPilot Claims Team",
-  "output_tokens": 218
-}

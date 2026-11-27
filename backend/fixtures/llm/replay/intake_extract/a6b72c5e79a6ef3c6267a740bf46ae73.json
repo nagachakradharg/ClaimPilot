@@ -1,0 +1,33 @@
+{
+  "input_tokens": 959,
+  "model": "ollama:gemma4:12b",
+  "node": "intake_extract",
+  "output": {
+    "claim_type": "other",
+    "claimed_amount": null,
+    "confidence": {
+      "cause": 0.9,
+      "claim_type": 0.8,
+      "damage_areas": 0.9,
+      "incident_date": 1.0,
+      "location": 0.0,
+      "severity": 1.0,
+      "vehicle": 0.8
+    },
+    "damage_areas": [
+      "hood",
+      "engine compartment",
+      "front passenger side"
+    ],
+    "described_cause": "My car was damaged.",
+    "incident_date": "2026-03-01",
+    "location": null,
+    "severity": "high",
+    "vehicle": {
+      "color": "Grey/Silver",
+      "make": null,
+      "model": null
+    }
+  },
+  "output_tokens": 221
+}

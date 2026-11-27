@@ -6,19 +6,19 @@
     "claim_type": "collision",
     "claimed_amount": null,
     "confidence": {
-      "cause": 0.5,
+      "cause": 0.0,
       "claim_type": 0.8,
-      "damage_areas": 0.95,
+      "damage_areas": 0.9,
       "incident_date": 1.0,
       "location": 0.0,
       "severity": 0.9,
-      "vehicle": 0.9
+      "vehicle": 0.8
     },
     "damage_areas": [
       "rear bumper",
       "lower bumper trim"
     ],
-    "described_cause": "My car was damaged.",
+    "described_cause": "not stated",
     "incident_date": "2026-03-01",
     "location": null,
     "severity": "low",
@@ -28,5 +28,5 @@
       "model": null
     }
   },
-  "output_tokens": 202
+  "output_tokens": 213
 }

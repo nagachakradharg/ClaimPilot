@@ -1,7 +1,0 @@
-{
-  "input_tokens": 423,
-  "model": "ollama:gemma4:12b",
-  "node": "letter_writer",
-  "output": "Subject: Claim Decision Regarding Your Glass Coverage\n\nDear {CLAIMANT_NAME},\n\nWe have completed the review of your claim regarding the incident on 2026-04-12. We are pleased to inform you that your claim for glass repair has been approved.\n\nThis loss is covered under your comprehensive coverage. Specifically, your policy states: \"We will pay for direct and accidental loss to your covered auto not caused by collision, minus the comprehensive deductible shown in the Declarations.\" Additionally, the policy notes that \"Repair of a windshield chip without replacement is paid with no deductible.\"\n\nRegarding your payment, the payment to the claimant is {PAYOUT}. Please note that no deductible applies to this claim.\n\nAs a next step, payment of {PAYOUT} will be issued within 5 business days.\n\nIf you have any questions, please contact us at the number provided on your policy documents.\n\nClaimPilot Claims Team",
-  "output_tokens": 191
-}

@@ -7,7 +7,7 @@
     "claimed_amount": null,
     "confidence": {
       "cause": 0.5,
-      "claim_type": 0.8,
+      "claim_type": 0.6,
       "damage_areas": 0.9,
       "incident_date": 1.0,
       "location": 0.0,
@@ -20,9 +20,10 @@
       "interior",
       "dashboard",
       "steering wheel",
-      "door panels"
+      "door panels",
+      "roof"
     ],
-    "described_cause": "damage",
+    "described_cause": "damaged",
     "incident_date": "2026-03-01",
     "location": null,
     "severity": "high",
@@ -32,5 +33,5 @@
       "model": null
     }
   },
-  "output_tokens": 230
+  "output_tokens": 234
 }

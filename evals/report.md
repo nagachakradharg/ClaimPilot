@@ -24,7 +24,9 @@ Claim-style damage photos (CC BY / BY-SA / CC0, see data/photos/ATTRIBUTION.md),
 
 | Run (UTC) | Set | Model | Prompt | Mode | N | Exact | Within one level | High recall | p50 ms | Errors |
 |---|---|---|---|---|---|---|---|---|---|---|
+| 2026-11-27T07:18 | val | ollama:gemma4:12b | v2 | record | 24 | 92% | 100% | 88% | 19287.0 | 0 |
 | 2026-11-26T09:19 | val | ollama:gemma4:12b | v2 | record | 24 | 92% | 100% | 88% | 13421.5 | 0 |
+| 2026-11-27T07:10 | dev | ollama:gemma4:12b | v2 | record | 23 | 91% | 100% | 100% | 20459.3 | 0 |
 | 2026-11-26T09:06 | dev | ollama:gemma4:12b | v2 | record | 23 | 91% | 100% | 100% | 13129.8 | 0 |
 | 2026-11-26T09:00 | dev | ollama:gemma4:12b | v1 | record | 23 | 74% | 100% | 100% | 13225.6 | 0 |
 
