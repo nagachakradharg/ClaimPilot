@@ -6,6 +6,28 @@ Multi-agent processing for personal **auto** insurance claims. It reads the clai
 
 > **AI assistance.** Claude (Anthropic) was used as a coding assistant during development and testing.
 
+## Quick start
+You need Docker with Compose v2.24+ (Docker Desktop is fine). No API key and no Python or Node install are needed.
+
+```bash
+git clone https://github.com/nagachakradharg/ClaimPilot.git claimpilot && cd claimpilot
+cp .env.example .env
+docker compose up -d --build                           # first build takes a few minutes
+docker compose run --rm api python -m claimpilot.seed  # demo policies and users
+```
+
+Open **http://localhost:8080**. Every demo user's password is `claimpilot-demo`, and the login page has buttons that fill in the emails.
+
+**Try it (2 minutes):**
+1. Sign in as **Claimant (Casey)** and choose **New claim**. Fill in a date, a place and a short description, attach a photo from [`data/photos/`](data/photos), and submit.
+2. Watch the steps complete live. The decision letter appears when the claim closes.
+3. Sign out, sign in as **Adjuster (Cool)** and open **Queue** → **all**. Open the claim to see the extraction, quoted policy clauses, fraud checks and payout steps. Then open **Trace** for the step-by-step timeline.
+4. Open **Impact** for the straight-through rate, escalation reasons and cost per claim.
+
+By default the stack runs in `fake` mode: canned model answers, instant and $0. These answers always pass, so every claim is auto-approved. To see real model decisions, including claims sent to an adjuster for review, use [live mode](#live-mode-real-local-model).
+
+Stop it with `docker compose down`. To also wipe the database and uploaded photos, use `docker compose down -v`, then seed again after the next `up`.
+
 ## The problem
 Claim handlers spend much of each claim on routine reading and lookups: matching the story to the photos, finding the right policy clause, pulling claim history and repair prices, working out the deductible, writing the letter. Most claims are simple, so this is slow, repetitive work. The risky few still need a human, with the evidence laid out.
 
@@ -60,20 +82,8 @@ Local model `ollama:gemma4:12b` (text + vision), $0 per claim. Full tables: [eva
 | **Trace timeline** | **Impact dashboard** |
 | ![Trace](docs/screenshots/trace.jpg) | ![Impact](docs/screenshots/impact.jpg) |
 
-## Run it (Docker)
-Prerequisite: Docker. No API key needed.
-
-```bash
-cp .env.example .env
-docker compose up -d --build
-docker compose run --rm api python -m claimpilot.seed
-```
-
-Open http://localhost:8080 and sign in as one of the demo users below. Model calls run in `fake` mode by default (canned answers, $0). To use the real local model, run Ollama on the host with `ollama pull gemma4:12b`, then:
-
-```bash
-LLM_MODE=live docker compose up -d
-```
+## Running with Docker
+The [Quick start](#quick-start) above covers the basics. This section has the details.
 
 ### Demo users (synthetic)
 | Role | Email | Can |
@@ -84,28 +94,58 @@ LLM_MODE=live docker compose up -d
 
 Password for all: `claimpilot-demo` locally. Set `DEMO_PASSWORD` before seeding any shared deployment.
 
+### Live mode (real local model)
+1. Install [Ollama](https://ollama.com) and pull the model (7.7 GB download; about 8 GB of free RAM while it runs):
+   ```bash
+   ollama pull gemma4:12b
+   ```
+2. Restart the API in live mode (containers reach Ollama on the host automatically):
+   ```bash
+   LLM_MODE=live docker compose up -d
+   ```
+
+A claim then takes about 1–2 minutes on a laptop. A mismatched claim goes to the adjuster's review queue. For example, describe "a small scratch on the rear bumper" and attach `data/photos/collision-side-impact.jpg`.
+
+### Troubleshooting
+| Problem | Fix |
+|---|---|
+| Port already in use (8080, 8000 or 5432) | Stop whatever uses it. A local Postgres on 5432 is the usual cause. |
+| Login fails, or the queue is empty | Run the seed command once after the first `up` (and again after `down -v`). |
+| The page shows "Can't reach the ClaimPilot API" | Give the API a few seconds after `up`, then check `docker compose ps` and `docker compose logs api`. |
+| Live-mode claims fail or time out | Check that Ollama is running (`ollama list`) and that enough memory is free. |
+| `env_file` error on `up` | Update Docker Compose to v2.24 or newer. |
+
+The seed uses a public Kaggle dataset for policy history if you download it to `data/raw/` (see [docs/data-sources.md](docs/data-sources.md)). Otherwise it uses synthetic history, and nothing else changes.
+
 ## Develop
 Prerequisites: [uv](https://docs.astral.sh/uv/), Node 20+, Docker (for Postgres).
 
+All commands run from the repo root. Stop the Docker `api` and `web` containers first (`docker compose stop api web`) so ports 8000 and 8080 are free.
+
 ```bash
 docker compose up -d db
-cd backend && uv sync && uv run alembic upgrade head && uv run python -m claimpilot.seed
-uv run uvicorn claimpilot.api.main:app --reload   # http://localhost:8000/docs
+(cd backend && uv sync && uv run alembic upgrade head && uv run python -m claimpilot.seed)
+(cd backend && uv run uvicorn claimpilot.api.main:app --reload)   # API at http://localhost:8000/docs
 ```
 
 In a second terminal (Vite proxies `/api` to port 8000):
 
 ```bash
-cd frontend && npm install && npm run dev        # http://localhost:5173
+(cd frontend && npm install && npm run dev)                        # UI at http://localhost:5173
 ```
 
 Tests (no API key; the DB tests skip without Postgres):
 
 ```bash
-cd backend && uv run pytest
-cd frontend && npm test
-scripts/smoke.sh                                 # API end-to-end check against the running Docker stack
-cd frontend && npm run e2e                       # Playwright browser tests against the same stack
+(cd backend && uv run pytest)
+(cd frontend && npm test)
+```
+
+End-to-end checks against the running Docker stack from the Quick start:
+
+```bash
+scripts/smoke.sh                                                   # API: claim → audit trail → PII check
+(cd frontend && npx playwright install chromium && npm run e2e)    # browser tests
 ```
 
 CI (GitHub Actions, no API keys) runs three jobs:
