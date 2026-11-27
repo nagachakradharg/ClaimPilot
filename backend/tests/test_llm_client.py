@@ -99,3 +99,14 @@ async def test_retries_then_fails_with_call_error(make_settings, monkeypatch):
 
 async def _no_sleep(_seconds):
     return None
+
+
+def test_generation_name_does_not_leak_between_nodes():
+    from claimpilot.llm.client import GENERATION_NAMES
+    from claimpilot.llm.models import build_chat_model
+
+    shared = build_chat_model("ollama:gemma4:12b")
+    a = shared.model_copy(update={"name": GENERATION_NAMES["intake_extract"]})
+    b = shared.model_copy(update={"name": GENERATION_NAMES["fraud_doc_consistency"]})
+    assert (a.name, b.name) == ("extract-claim-facts", "check-document-consistency")
+    assert shared.name is None or shared.name not in (a.name, b.name)

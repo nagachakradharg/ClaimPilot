@@ -4,6 +4,8 @@ Multi-agent processing for personal **auto** insurance claims. It reads the clai
 
 > **Synthetic demo.** All data is synthetic. The system only makes recommendations; an adjuster makes final decisions.
 
+> **AI assistance.** Claude (Anthropic) was used as a coding assistant during development and testing.
+
 ## The problem
 Claim handlers spend much of each claim on routine reading and lookups: matching the story to the photos, finding the right policy clause, pulling claim history and repair prices, working out the deductible, writing the letter. Most claims are simple, so this is slow, repetitive work. The risky few still need a human, with the evidence laid out.
 
@@ -124,6 +126,18 @@ Evals: `uv run python -m claimpilot.evals.coverage|severity|letters` (`LLM_MODE=
 ### API
 `/auth/login`, `/auth/me`, `POST /claims` (multipart: `form` JSON + `photos`), `GET /claims`, `GET /claims/{id}`, `POST /claims/{id}/review`, `GET /claims/{id}/events` (SSE), `GET /claims/{id}/audit`, `GET /metrics`. OpenAPI docs at `/docs`.
 
+## Observability (Langfuse)
+Optional. Set `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` and `LANGFUSE_HOST` in `.env` (the free cloud tier works); `TRACING=false` turns it off. Tracing follows Langfuse's [best practices](https://langfuse.com/docs/observability/best-practices):
+- **One trace per run segment:** `process-claim`, `resume-claim-after-review`, `finish-claim-after-letter-edit`. A claim's segments form a **session** (`session_id` = claim id), because human review pauses the workflow between them. `user_id` is the pseudonymous claimant id.
+- **Steps nested as they ran:** LangGraph nodes and subgraphs, `generation`s named by action (`extract-claim-facts`, `assess-coverage`, `write-letter`, …) with model and tokens, a `retriever` for clause search, and MCP `tool` calls.
+- **Inputs and outputs:** each trace's input is the claim form or the adjuster's action, and its output is the resulting decision. Photos are attached as media, and framework plumbing is filtered out.
+- **PII:** masked at export (`mask_otel_spans`), using patterns plus the claimant's known values. Policy numbers are partly masked.
+- **Evals:** one trace per case and one session per eval run. Expected values are stored in metadata (ready for LLM-as-a-judge), and each result row stores its `trace_id`. Eval traffic uses `environment=eval`.
+
+| One claim run as a trace (masked policy number, readable input/output) | A claim as a session: the second trace resumes after the adjuster's decision |
+|---|---|
+| ![Langfuse trace tree](docs/screenshots/langfuse-trace.png) | ![Langfuse session](docs/screenshots/langfuse-session.webp) |
+
 ## Deploying to AWS
 Terraform for ECS Fargate, ALB, RDS (pgvector), EFS, Secrets Manager and a budget alarm is in [infra/aws](infra/aws/README.md). It is written but **not applied**; the demo runs on Docker Compose ([ADR-0005](docs/adr/0005-cloud-target-aws.md)).
 
@@ -132,7 +146,6 @@ Terraform for ECS Fargate, ALB, RDS (pgvector), EFS, Secrets Manager and a budge
 - **One model family evaluated.** The second-provider comparison in the requirements still needs paid API keys.
 - **Citations:** held-out citation correctness went from 83% to 92%. The fix is a deterministic rule: a "covered" decision always cites its part's insuring clause, and the other part's insuring clause is dropped. It was rescored on the recorded model outputs, and that held-out set had already been seen during prompt work, so treat 92% as optimistic until a fresh set is labeled.
 - **Single API replica:** live progress fan-out is in-process.
-- **Tracing not yet exercised against a live Langfuse.** Calls are grouped per claim or eval case (`langfuse_session_id` = run id) with PII masked; it needs Langfuse keys (cloud free tier, or self-hosting, which takes about 4–6 GB of RAM).
 - **Photos are on a local or EFS volume.** S3 with presigned uploads is the production path. Prompt caching applies only to hosted providers.
 - There is no self-signup or password reset (out of scope).
 - **Hours saved** on the dashboard is an estimate built on a stated assumption: 45 minutes of manual handling per auto-approved claim.

@@ -15,6 +15,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from claimpilot import tracing
 from claimpilot.config import get_settings
 from claimpilot.db import get_sessionmaker
 from claimpilot.llm import CallRecord
@@ -74,6 +75,7 @@ class EventHub:
 
     def register_pii(self, claim_id: str, values: list[str]) -> None:
         self._known.setdefault(claim_id, []).extend(values)
+        tracing.register_pii(values)  # traces are masked with the same known values
 
     def publish(self, event: Event) -> None:
         known = self._known.get(event.claim_id, [])

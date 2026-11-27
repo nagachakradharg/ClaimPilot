@@ -12,6 +12,7 @@ from typing import Any, TypeVar
 from fastmcp import Client
 from pydantic import BaseModel
 
+from claimpilot import tracing
 from claimpilot.config import Settings, get_settings
 from claimpilot.context import current_run_id
 
@@ -54,14 +55,15 @@ class ToolClient:
         start = time.perf_counter()
         record = ToolRecord(tool=tool, arguments=arguments, run_id=current_run_id(), latency_ms=0)
         try:
-            async with Client(self._transport()) as client:
-                result = await asyncio.wait_for(
-                    client.call_tool(tool, arguments, raise_on_error=False),
-                    timeout=self.settings.tool_timeout_s,
-                )
-            if result.is_error:
-                text = " ".join(getattr(c, "text", "") for c in result.content)
-                raise ToolCallError(f"{tool} failed: {text}")
+            # A `tool` observation under the calling graph step, with arguments and result
+            with tracing.observe(tool, "tool", input=arguments,
+                                 metadata={"transport": "mcp"}) as obs:  # fmt: skip
+                result = await self._call(tool, arguments)
+                if result.is_error:
+                    text = " ".join(getattr(c, "text", "") for c in result.content)
+                    obs.update(level="ERROR", status_message=text[:500])
+                    raise ToolCallError(f"{tool} failed: {text}")
+                obs.update(output=result.structured_content)
             return result_type.model_validate(result.structured_content)
         except Exception as exc:
             record.error = f"{type(exc).__name__}: {exc}"
@@ -70,3 +72,10 @@ class ToolClient:
             record.latency_ms = round((time.perf_counter() - start) * 1000, 1)
             for listener in self._listeners:
                 listener(record)
+
+    async def _call(self, tool: str, arguments: dict[str, Any]) -> Any:
+        async with Client(self._transport()) as client:
+            return await asyncio.wait_for(
+                client.call_tool(tool, arguments, raise_on_error=False),
+                timeout=self.settings.tool_timeout_s,
+            )

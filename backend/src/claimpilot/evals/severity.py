@@ -20,6 +20,7 @@ import time
 from collections import Counter
 from datetime import UTC, date, datetime
 
+from claimpilot import tracing
 from claimpilot.config import DATA_DIR, EVALS_DIR, get_settings
 from claimpilot.context import run_context
 from claimpilot.domain import ClaimExtraction, ClaimForm, Severity
@@ -75,11 +76,17 @@ async def run(name: str, limit: int | None) -> dict:
         f"model={settings.model_for(NODE)}, prompt={INTAKE_PROMPT_VERSION}"
     )
     scored = []
+    session = tracing.eval_session(f"severity-{name}")
     for row in rows:
         photo = StoredPhoto(str(DATA_DIR / row["path"]), "", 0, 0, "image/jpeg")
         accepted = [row["severity"], *row.get("also_ok", [])]
         start = time.perf_counter()
-        with run_context(f"eval-sev-{row['image']}"):
+        with (
+            run_context(f"eval-sev-{row['image']}"),
+            tracing.eval_case(f"severity-{name}", session, row["image"],
+                              {"image": row["image"], "form": FORM.model_dump(mode="json")},
+                              {"severity": row["severity"], "also_ok": accepted[1:]}) as trace,
+        ):  # fmt: skip
             try:
                 messages = render_messages(FORM, [photo], settings)
                 ex = await llm.structured(NODE, ClaimExtraction, messages)
@@ -87,6 +94,7 @@ async def run(name: str, limit: int | None) -> dict:
             except Exception as exc:
                 pred, err = None, True
                 print(f"  ERROR {row['image']}: {type(exc).__name__}: {exc}")
+            trace.update(output={"severity": pred, "ok": pred in accepted})
         mark = "ok " if pred in accepted else "XX "
         print(
             f"  {mark}{row['image'][:40]:<40} expected={row['severity']:<7} got={pred}  "
@@ -99,9 +107,12 @@ async def run(name: str, limit: int | None) -> dict:
                 "accepted": accepted,
                 "predicted": pred,
                 "error": err,
+                "trace_id": trace.trace_id,
             }
         )
+    tracing.flush()
     payload = {
+        "langfuse_session_id": session if tracing.get_langfuse() else None,
         "suite": f"severity_{name}",
         "prompt_version": INTAKE_PROMPT_VERSION,
         "timestamp": datetime.now(UTC).isoformat(timespec="seconds"),

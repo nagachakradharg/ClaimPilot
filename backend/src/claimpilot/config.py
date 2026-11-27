@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     langfuse_public_key: str | None = None
     langfuse_secret_key: str | None = None
     langfuse_host: str | None = None
+    tracing: bool = True  # kill switch: TRACING=false disables Langfuse even with keys set
 
     # "inprocess" runs the service inside this Python process (dev, tests, CLI);
     # otherwise a URL, e.g. http://core:8100 and http://mcp:8200/mcp in Docker Compose.
@@ -103,7 +104,7 @@ class Settings(BaseSettings):
 
     @property
     def tracing_enabled(self) -> bool:
-        return bool(self.langfuse_public_key and self.langfuse_secret_key)
+        return self.tracing and bool(self.langfuse_public_key and self.langfuse_secret_key)
 
 
 @lru_cache

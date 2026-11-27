@@ -22,6 +22,7 @@ import statistics
 import time
 from datetime import UTC, datetime
 
+from claimpilot import tracing
 from claimpilot.config import EVALS_DIR, get_settings
 from claimpilot.context import run_context
 from claimpilot.evals.report import write_report
@@ -34,6 +35,7 @@ from claimpilot.graphs.letter import (
     build_letter_graph,
 )
 from claimpilot.llm import CallRecord, LLMClient
+from claimpilot.redact import known_pii
 
 CASES = EVALS_DIR / "letter_cases.jsonl"
 RESULTS_DIR = EVALS_DIR / "results"
@@ -108,17 +110,27 @@ async def run(limit: int | None) -> dict:
     print(f"Letter eval: {len(cases)} cases, mode={settings.llm_mode}, "
           f"model={settings.model_for(WRITER)}")  # fmt: skip
     scored = []
+    session = tracing.eval_session("letters")
     for case in cases:
         rec = LetterInput.model_validate(case["record"])
+        tracing.register_pii(known_pii(rec.claimant_name))  # mask names in traces, as in the app
         start = time.perf_counter()
-        with run_context(f"eval-{case['id']}"):
+        with (
+            run_context(f"eval-{case['id']}"),
+            tracing.eval_case("letters", session, case["id"], case["record"],
+                              {"decision": rec.decision.value, "payout": rec.payout}) as trace,
+        ):  # fmt: skip
             try:
-                letter: Letter = (await graph.ainvoke({"record": rec}))["letter"]
+                letter: Letter = (
+                    await graph.ainvoke({"record": rec}, {"callbacks": tracing.get_callbacks()})
+                )["letter"]
                 checks = check_letter(rec, letter)
             except Exception as exc:
                 print(f"  ERROR {case['id']}: {type(exc).__name__}: {exc}")
                 scored.append({"id": case["id"], "error": True})
                 continue
+            trace.update(output={"subject": letter.subject, "body": letter.body,
+                                 "checks": checks, "revisions": letter.revisions})  # fmt: skip
         failed = [k for k, v in checks.items() if not v]
         flag = " [flagged]" if letter.needs_adjuster_edit else ""
         print(f"  {'ok ' if not failed else 'XX '}{case['id']} {rec.decision.value:<13} "
@@ -128,6 +140,7 @@ async def run(limit: int | None) -> dict:
             {
                 "id": case["id"],
                 "error": False,
+                "trace_id": trace.trace_id,
                 "checks": checks,
                 "revisions": letter.revisions,
                 "needs_adjuster_edit": letter.needs_adjuster_edit,
@@ -136,7 +149,9 @@ async def run(limit: int | None) -> dict:
                 "body": letter.body,
             }
         )
+    tracing.flush()
     payload = {
+        "langfuse_session_id": session if tracing.get_langfuse() else None,
         "suite": "letters",
         "timestamp": datetime.now(UTC).isoformat(timespec="seconds"),
         "llm_mode": settings.llm_mode.value,

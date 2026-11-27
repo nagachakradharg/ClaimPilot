@@ -3,6 +3,8 @@ import tempfile
 
 # Tests never touch the real core-system claims file (set before claimpilot imports).
 os.environ["CORE_CLAIMS_FILE"] = os.path.join(tempfile.mkdtemp(), "core_claims.json")
+# Never send test runs to Langfuse, even when .env holds real keys (env beats .env).
+os.environ["TRACING"] = "false"
 
 import pytest
 

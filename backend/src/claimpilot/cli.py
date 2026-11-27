@@ -14,6 +14,7 @@ import argparse
 import asyncio
 from pathlib import Path
 
+from claimpilot import tracing
 from claimpilot.checkpoint import open_checkpointer
 from claimpilot.config import get_settings
 from claimpilot.db import get_engine, get_sessionmaker
@@ -112,4 +113,7 @@ if __name__ == "__main__":
     sh = sub.add_parser("show")
     sh.add_argument("claim_id")
     sh.add_argument("--json", action="store_true")
-    asyncio.run(main(p.parse_args()))
+    try:
+        asyncio.run(main(p.parse_args()))
+    finally:
+        tracing.flush()  # the process exits right after: send queued traces first

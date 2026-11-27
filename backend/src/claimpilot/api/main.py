@@ -13,7 +13,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 
-from claimpilot import __version__
+from claimpilot import __version__, tracing
 from claimpilot.api.claims import metrics_router
 from claimpilot.api.claims import router as claims_router
 from claimpilot.auth import CurrentUser, authenticate, current_user, issue_token
@@ -45,6 +45,7 @@ async def lifespan(app: FastAPI):
         if app.state.tasks:  # let in-flight claim steps finish their current write
             await asyncio.gather(*app.state.tasks, return_exceptions=True)
     await hub.stop()
+    tracing.flush()
     await get_engine().dispose()
 
 

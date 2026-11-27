@@ -23,6 +23,7 @@ from langgraph.types import Command, interrupt
 from pydantic import BaseModel, Field, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from claimpilot import tracing
 from claimpilot.config import Settings, get_settings
 from claimpilot.context import run_context
 from claimpilot.domain import ClaimForm, ClaimType, CoverageDecision, CoveragePart, CoverageResult
@@ -41,6 +42,7 @@ from claimpilot.llm import LLMClient
 from claimpilot.mcp_server import CoreClaim, VehicleValue
 from claimpilot.payout import PayoutResult, compute_payout
 from claimpilot.photos import StoredPhoto, store_photo, validate_photo
+from claimpilot.redact import known_pii
 from claimpilot.tools import ToolClient
 
 
@@ -162,6 +164,8 @@ def build_claim_graph(
             }
         )
         result: IntakeResult = out["result"]
+        if result.policy:  # mask the holder's name in traces (names can't be found by pattern)
+            tracing.register_pii(known_pii(result.policy.holder_name))
         return {
             "intake": result,
             "status": ClaimStatus.INVALID if result.errors else ClaimStatus.PROCESSING,
@@ -394,7 +398,11 @@ class ClaimService:
         return {"configurable": {"thread_id": claim_id}}
 
     async def start(
-        self, form: ClaimForm, photos: list[tuple[str, bytes]], claim_id: str | None = None
+        self,
+        form: ClaimForm,
+        photos: list[tuple[str, bytes]],
+        claim_id: str | None = None,
+        user_id: str | None = None,
     ) -> ClaimRun:
         claim_id = claim_id or self.new_claim_id()
         stored, upload_errors = prepare_photos(photos, claim_id, self.settings)
@@ -404,19 +412,46 @@ class ClaimService:
             "photos": stored,
             "upload_errors": upload_errors,
         }
-        return await self._drive(claim_id, initial)
+        trace_input = {
+            "policy_number": form.policy_number,
+            "incident_date": form.incident_date.isoformat(),
+            "incident_location": form.incident_location,
+            "description": form.description,
+            "claimed_amount": form.claimed_amount,
+            "photos": len(stored),
+        }
+        return await self._drive(claim_id, initial, "process-claim", trace_input, user_id)
 
-    async def resume(self, claim_id: str, review: ReviewDecision) -> ClaimRun:
+    async def resume(
+        self, claim_id: str, review: ReviewDecision, user_id: str | None = None
+    ) -> ClaimRun:
         current = await self.get(claim_id)
         if current.status is not ClaimStatus.PENDING_REVIEW:
             raise ValueError(f"claim {claim_id} is {current.status.value}, not pending_review")
-        return await self._drive(claim_id, Command(resume=review.model_dump()))
+        return await self._drive(
+            claim_id,
+            Command(resume=review.model_dump()),
+            "resume-claim-after-review",
+            {"adjuster_action": review.action, "reason": review.reason,
+             "payout_amount": review.payout_amount},
+            user_id,
+            actor=review.adjuster,
+        )  # fmt: skip
 
-    async def edit_letter(self, claim_id: str, edit: LetterEdit) -> ClaimRun:
+    async def edit_letter(
+        self, claim_id: str, edit: LetterEdit, user_id: str | None = None
+    ) -> ClaimRun:
         current = await self.get(claim_id)
         if current.status is not ClaimStatus.PENDING_LETTER:
             raise ValueError(f"claim {claim_id} is {current.status.value}, not pending_letter")
-        return await self._drive(claim_id, Command(resume=edit.model_dump()))
+        return await self._drive(
+            claim_id,
+            Command(resume=edit.model_dump()),
+            "finish-claim-after-letter-edit",
+            {"subject": edit.subject},
+            user_id,
+            actor=edit.adjuster,
+        )
 
     async def get(self, claim_id: str) -> ClaimRun:
         snap = await self.graph.aget_state(self._config(claim_id))
@@ -424,18 +459,49 @@ class ClaimService:
             raise KeyError(claim_id)
         return self._to_run(claim_id, snap.values)
 
-    async def _drive(self, claim_id: str, graph_input: Any) -> ClaimRun:
+    async def _drive(
+        self,
+        claim_id: str,
+        graph_input: Any,
+        trace_name: str,
+        trace_input: Any,
+        user_id: str | None,
+        actor: str | None = None,
+    ) -> ClaimRun:
         error = None
-        with run_context(claim_id):
+        config = self._config(claim_id) | {"callbacks": tracing.get_callbacks()}
+        metadata = {"claim_id": claim_id, "llm_mode": self.settings.llm_mode.value,
+                    "default_model": self.settings.llm_default_model}  # fmt: skip
+        if actor:
+            metadata["actor"] = actor
+        # One trace per run segment; the claim id groups the segments into a session.
+        with (
+            run_context(claim_id),
+            tracing.trace_run(
+                trace_name, session_id=claim_id, user_id=user_id, input=trace_input,
+                metadata=metadata, tags=["claim"],
+            ) as root,
+        ):  # fmt: skip
             try:
                 async for ns, chunk in self.graph.astream(
-                    graph_input, self._config(claim_id), stream_mode="debug", subgraphs=True
+                    graph_input, config, stream_mode="debug", subgraphs=True
                 ):
                     if self.on_graph:
                         self.on_graph(claim_id, ns, chunk)
             except Exception as exc:  # terminal failure after retries
                 error = f"{type(exc).__name__}: {exc}"
-        state = (await self.graph.aget_state(self._config(claim_id))).values
+            state = (await self.graph.aget_state(self._config(claim_id))).values
+            run = self._to_run(claim_id, state, error)
+            root.update(
+                output={
+                    "status": run.status.value,
+                    "decision": run.decision.value if run.decision else None,
+                    "final_payout": run.final_payout,
+                    "review_reasons": run.review_reasons,
+                    "error": error,
+                },
+                **({"level": "ERROR", "status_message": error} if error else {}),
+            )
         if error and (core_id := state.get("core_claim_id")):
             with contextlib.suppress(Exception):  # best effort; the failure is the headline
                 await self.tools.call(

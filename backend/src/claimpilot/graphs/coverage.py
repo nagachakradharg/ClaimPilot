@@ -16,6 +16,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import END, START, StateGraph
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from claimpilot import tracing
 from claimpilot.config import get_settings
 from claimpilot.domain import (
     Citation,
@@ -147,13 +148,23 @@ def build_coverage_graph(llm: LLMClient, sessionmaker: async_sessionmaker[AsyncS
         return "retrieve" if in_period and policy["status"] == "active" else "finalize"
 
     async def retrieve(state: CoverageState) -> CoverageState:
-        async with sessionmaker() as session:
-            clauses = await retrieve_for_coverage(
-                session,
-                state["policy"]["form_id"],
-                build_query(state["facts"]),
-                settings.retrieval_top_k,
-            )
+        form_id, query = state["policy"]["form_id"], build_query(state["facts"])
+        with tracing.observe(
+            "retrieve-policy-clauses",
+            "retriever",
+            input={"query": query},
+            metadata={"form_id": form_id, "top_k": settings.retrieval_top_k,
+                      "index": "pgvector policy_clauses", "exclusion_sweep": True},
+        ) as obs:  # fmt: skip
+            async with sessionmaker() as session:
+                clauses = await retrieve_for_coverage(
+                    session, form_id, query, settings.retrieval_top_k
+                )
+            obs.update(output=[
+                {"clause_id": c.clause_id, "title": c.title,
+                 "score": round(c.score, 3) if c.score is not None else None}
+                for c in clauses
+            ])  # fmt: skip
         return {"clauses": clauses}
 
     async def assess(state: CoverageState) -> CoverageState:
@@ -281,5 +292,5 @@ async def run_coverage(
     facts: ClaimFacts, llm: LLMClient, sessionmaker: async_sessionmaker[AsyncSession]
 ) -> CoverageResult:
     graph = build_coverage_graph(llm, sessionmaker)
-    out = await graph.ainvoke({"facts": facts})
+    out = await graph.ainvoke({"facts": facts}, {"callbacks": tracing.get_callbacks()})
     return out["result"]

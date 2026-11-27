@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from claimpilot import tracing
 from claimpilot.config import EVALS_DIR, get_settings
 from claimpilot.context import run_context
 from claimpilot.db import get_sessionmaker
@@ -108,18 +109,26 @@ async def run(
     llm.add_listener(calls.append)
     sessionmaker = get_sessionmaker()
     sem = asyncio.Semaphore(concurrency)
+    session = tracing.eval_session(f"coverage-{dataset}")
 
     async def one(case: dict[str, Any]) -> dict[str, Any]:
         async with sem:
             facts = ClaimFacts.model_validate(case["facts"])
             start = time.perf_counter()
-            with run_context(f"eval-{case['id']}"):
+            with (
+                run_context(f"eval-{case['id']}"),
+                tracing.eval_case(
+                    f"coverage-{dataset}", session, case["id"], case["facts"], case["expected"]
+                ) as trace,
+            ):
                 try:
                     result = (await run_coverage(facts, llm, sessionmaker)).model_dump(mode="json")
                 except Exception as exc:  # keep going; errors count as misses
                     print(f"  {case['id']}: ERROR {type(exc).__name__}: {exc}")
                     return score_case(case, None)
-            scored = score_case(case, result)
+                trace.update(output={k: result[k] for k in ("decision", "coverage_part",
+                             "citations", "reasoning", "flags")})  # fmt: skip
+            scored = score_case(case, result) | {"trace_id": trace.trace_id}
             mark = "ok " if scored["decision_ok"] else "XX "
             print(
                 f"  {mark}{case['id']} expected={scored['expected']:<12} "
@@ -134,7 +143,9 @@ async def run(
     )
     scored = await asyncio.gather(*(one(c) for c in cases))
     summary = summarize(list(scored), calls)
+    tracing.flush()
     payload = {
+        "langfuse_session_id": session if tracing.get_langfuse() else None,
         "suite": f"coverage_{dataset}",
         "prompt_version": PROMPT_VERSION,
         "llm_reasoning": settings.llm_reasoning,

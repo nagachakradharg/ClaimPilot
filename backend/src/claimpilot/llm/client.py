@@ -26,7 +26,7 @@ from claimpilot.context import current_run_id
 from claimpilot.llm.fake import fake_responses
 from claimpilot.llm.models import build_chat_model
 from claimpilot.llm.replay import ReplayStore, replay_key
-from claimpilot.tracing import get_callbacks
+from claimpilot.tracing import callbacks_unless_inherited
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -57,6 +57,17 @@ CallListener = Callable[[CallRecord], None]
 def _usage(msg: AIMessage | None) -> tuple[int | None, int | None]:
     usage = getattr(msg, "usage_metadata", None) or {}
     return usage.get("input_tokens"), usage.get("output_tokens")
+
+
+# Trace names per model step; dashboards and evaluators key on them, so keep them stable.
+GENERATION_NAMES = {
+    "intake_extract": "extract-claim-facts",
+    "coverage_assess": "assess-coverage",
+    "fraud_doc_consistency": "check-document-consistency",
+    "fraud_photo_match": "match-photos-to-story",
+    "letter_writer": "write-letter",
+    "letter_reviewer": "review-letter",
+}
 
 
 class LLMClient:
@@ -142,15 +153,21 @@ class LLMClient:
         schema: type[BaseModel] | None,
         record: CallRecord,
     ) -> Any:
-        model = build_chat_model(spec)
+        provider, _, model_name = spec.partition(":")
+        model = build_chat_model(spec)  # cached and shared: never mutate it
+        name = GENERATION_NAMES.get(node, node)
+        model = model.model_copy(update={"name": name}) if hasattr(model, "model_copy") else model
         runnable = model.with_structured_output(schema, include_raw=True) if schema else model
+        callbacks = callbacks_unless_inherited()
         config = {
-            "callbacks": get_callbacks(),
-            "run_name": node,
+            **({"callbacks": callbacks} if callbacks is not None else {}),
             "tags": [node],
-            # FR-7.3: one run_id (claim id or eval case) links audit rows, cost and traces;
-            # Langfuse groups every model call of a run into one session.
-            "metadata": {"run_id": record.run_id, "langfuse_session_id": record.run_id},
+            "metadata": {
+                "node": node,
+                "run_id": record.run_id,  # links audit rows, cost and traces
+                "ls_provider": provider,
+                "ls_model_name": model_name,
+            },
         }
         convo = list(messages)
 

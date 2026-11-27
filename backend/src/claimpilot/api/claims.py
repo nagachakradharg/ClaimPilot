@@ -149,7 +149,14 @@ async def submit_claim(
             data={"photos": len(uploads)},
         )
     )
-    _spawn(request, _execute(request, claim_id, svc.start(claim_form, uploads, claim_id)))
+    _spawn(
+        request,
+        _execute(
+            request,
+            claim_id,
+            svc.start(claim_form, uploads, claim_id, user_id=f"claimant:{user.id}"),
+        ),
+    )
     return {"claim_id": claim_id, "status": "submitted"}
 
 
@@ -278,7 +285,14 @@ async def review_claim(
     await _start_action(claim_id, user)
     _hub(request).publish(Event(claim_id=claim_id, kind="human", name=f"review_{decision.action}",
                                 actor=user.email, data=decision.model_dump()))  # fmt: skip
-    _spawn(request, _execute(request, claim_id, _svc(request).resume(claim_id, decision)))
+    _spawn(
+        request,
+        _execute(
+            request,
+            claim_id,
+            _svc(request).resume(claim_id, decision, user_id=f"claimant:{rec.owner_id}"),
+        ),
+    )
     return {"claim_id": claim_id, "status": "processing"}
 
 
@@ -298,7 +312,14 @@ async def edit_letter(
     await _start_action(claim_id, user)
     _hub(request).publish(Event(claim_id=claim_id, kind="human", name="letter_edited",
                                 actor=user.email, data={"subject": edit.subject}))  # fmt: skip
-    _spawn(request, _execute(request, claim_id, _svc(request).edit_letter(claim_id, edit)))
+    _spawn(
+        request,
+        _execute(
+            request,
+            claim_id,
+            _svc(request).edit_letter(claim_id, edit, user_id=f"claimant:{rec.owner_id}"),
+        ),
+    )
     return {"claim_id": claim_id, "status": "processing"}
 
 
